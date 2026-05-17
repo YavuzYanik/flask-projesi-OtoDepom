@@ -1,11 +1,11 @@
-# OtoDepom
+# OTODEPOM
 
 ## Projenin Amacı
-OtoDepom, araç sahiplerinin kendi marka ve modellerine tam olarak uyan motor yağı ve lastikleri kolayca filtreleyip satın alabilmesini sağlayan bir platformdur. Bu proje, kullanıcıların araçları için doğru yedek parçayı bulma karmaşasını ortadan kaldırmayı ve güvenli bir e-ticaret deneyimi sunmayı hedeflemektedir.
+OTODEPOM, araç sahiplerinin kendi marka ve modellerine tam olarak uyan motor yağı, akü ve lastik gibi yedek parçaları kolayca filtreleyip satın alabilmesini sağlayan bir e-ticaret platformudur. Kullanıcıların "Aracıma hangi yağ çeşidi, akü voltajı veya lastik ebatı uyar?" karmaşasını ortadan kaldırır. Platform sayesinde araç tipinizi sisteme girerek aracınıza en uygun ürünleri tek tıkla görebilir ve güvenle sipariş edebilirsiniz.
 
 ## Kullanılan Teknolojiler
 - **Backend:** Python, Flask 3.x, Flask-SQLAlchemy, Flask-Migrate, Flask-Login, Flask-WTF
-- **Frontend:** Jinja2 Şablon Motoru, HTML/CSS (Gelecek aşamalarda Bootstrap veya Tailwind eklenecek)
+- **Frontend:** Jinja2 Şablon Motoru, HTML/CSS (Bootstrap veya Tailwind entegre edilecek)
 - **Veritabanı:** SQLite (Geliştirme aşaması için)
 
 ## Kurulum Adımları

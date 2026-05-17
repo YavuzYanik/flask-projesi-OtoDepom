@@ -1,1 +1,6 @@
-# Boş requirements.txt
+flask==3.0.0
+flask-sqlalchemy==3.0.0
+flask-migrate==3.0.0
+flask-login==3.0.0
+flask-wtf==3.0.0
+python-dotenv==1.0.0
