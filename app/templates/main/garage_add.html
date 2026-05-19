@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    body { background-color: #121418; color: #f0f4f8; }
+    
+    .search-box {
+        background-color: #1a1d24;
+        border-radius: 12px;
+        padding: 0;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        overflow: hidden;
+        border: 1px solid #2a2d35;
+    }
+    
+    .form-label {
+        color: #a0a5b1;
+        font-weight: 500;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    .form-select, .form-control {
+        background-color: #121418;
+        border: 1px solid #2a2d35;
+        color: #fff;
+        border-radius: 6px;
+        padding: 10px 15px;
+    }
+    .form-select:focus, .form-control:focus {
+        background-color: #121418;
+        border-color: #7b3deb;
+        color: #fff;
+        box-shadow: 0 0 0 0.25rem rgba(123, 61, 235, 0.25);
+    }
+    
+    /* Disabled elemanlar için css düzeltmesi (beyaz görünmemesi için) */
+    .form-select:disabled, .form-control:disabled {
+        background-color: #1a1d24;
+        color: #6c757d;
+        border-color: #2a2d35;
+        opacity: 0.8;
+        cursor: not-allowed;
+    }
+    
+    .btn-accent {
+        background-color: #7b3deb;
+        color: white;
+        font-weight: bold;
+        border-radius: 6px;
+        transition: 0.3s;
+        border: none;
+    }
+    .btn-accent:hover {
+        background-color: #5d2bba;
+        color: white;
+    }
+    
+    .step-container { display: none; }
+    .step-container.active { display: block; animation: fadeIn 0.4s; }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container mt-3 mb-5">
+    <div class="search-box mt-4">
+        <div class="p-4 p-md-5">
+            <h4 class="mb-4 text-white"><i class="fa-solid fa-car-side me-2"></i>Garajıma Araç Ekle</h4>
+            
+            <form id="vehicleForm" method="POST" action="{{ url_for('main.garage_add') }}">
+                
+                <!-- STEP 1: Araç Özellikleri -->
+                <div id="step1" class="step-container active">
+                    <!-- Marka > Seri > Model Hiyerarşisi -->
+                    <div class="row mb-4 border-bottom border-secondary pb-4">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Marka</label>
+                            <select id="brand" name="brand" class="form-select" required>
+                                <option value="">Belirtilmedi</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Seri</label>
+                            <select id="series" name="series" class="form-select" required disabled>
+                                <option value="">Önce Marka Seçin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Model (Donanım)</label>
+                            <select id="model_name" name="model_name" class="form-select" required disabled>
+                                <option value="">Önce Seri Seçin</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Araca Göre Değişen Dinamik Özellikler -->
+                    <h5 class="text-white mb-3 mt-2"><i class="fa-solid fa-gears me-2"></i> Araç Özellikleri</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label text-warning">Model Yılı</label>
+                            <select id="year" name="year" class="form-select" required disabled>
+                                <option value="">Önce Donanım Seçin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label text-warning">Yakıt Tipi</label>
+                            <select id="fuel_type" name="fuel_type" class="form-select" required disabled>
+                                <option value="">Önce Donanım Seçin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label text-warning">Vites Tipi</label>
+                            <select id="transmission" name="transmission" class="form-select" required disabled>
+                                <option value="">Önce Donanım Seçin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label text-warning">Motor Gücü</label>
+                            <select id="engine_power" name="engine_power" class="form-select" required disabled>
+                                <option value="">Önce Donanım Seçin</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Plaka</label>
+                            <!-- Plaka Formatı: Rakam - Harf - Rakam -->
+                            <input type="text" name="plate" class="form-control text-uppercase" 
+                                   pattern="^(0[1-9]|[1-7][0-9]|8[0-1])\s?[A-Za-z]{1,3}\s?\d{2,4}$" 
+                                   title="Lütfen geçerli bir Türkiye plakası giriniz (Örn: 34 ABC 123)" 
+                                   placeholder="Örn: 34 ABC 123" required>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-4 border-top border-secondary pt-4">
+                        <div></div>
+                        <div>
+                            <a href="{{ url_for('main.garage') }}" class="btn text-white me-3"><i class="fa-solid fa-rotate-left me-1"></i> İptal</a>
+                            <button type="button" class="btn btn-accent px-5 py-2" onclick="nextStep()">Sonraki Adım <i class="fa-solid fa-arrow-right ms-2"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Bakım ve Muayene -->
+                <div id="step2" class="step-container">
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="fa-solid fa-clipboard-check me-2"></i> Sonraki Muayene Tarihi</label>
+                            <input type="date" id="inspection_date" name="inspection_date" class="form-control mb-2" required>
+                            
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="unknown_inspection" onchange="toggleDate('inspection_date', this.checked)">
+                                <label class="form-check-label small" style="color: #a0a5b1;" for="unknown_inspection">
+                                    Tarihi tam olarak bilmiyorum / Hatırlamıyorum
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="fa-solid fa-wrench me-2"></i> Sonraki Yağ Bakım Tarihi</label>
+                            <input type="date" id="maintenance_date" name="maintenance_date" class="form-control mb-2" required>
+                            
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="unknown_maintenance" onchange="toggleDate('maintenance_date', this.checked)">
+                                <label class="form-check-label small" style="color: #a0a5b1;" for="unknown_maintenance">
+                                    Tarihi tam olarak bilmiyorum / Hatırlamıyorum
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-4 border-top border-secondary pt-4">
+                        <button type="button" class="btn text-white" onclick="prevStep()"><i class="fa-solid fa-rotate-left me-1"></i> Geri Dön</button>
+                        <button type="submit" class="btn btn-accent px-5 py-2"><i class="fa-solid fa-floppy-disk me-2"></i> Garaja Ekle</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const carData = {{ car_data|tojson }};
+
+    const brandSelect = document.getElementById('brand');
+    const seriesSelect = document.getElementById('series');
+    const modelSelect = document.getElementById('model_name');
+    
+    const yearSelect = document.getElementById('year');
+    const fuelSelect = document.getElementById('fuel_type');
+    const transSelect = document.getElementById('transmission');
+    const powerSelect = document.getElementById('engine_power');
+    
+    function resetSelect(element, defaultText) {
+        element.innerHTML = `<option value="">${defaultText}</option>`;
+        element.disabled = true;
+    }
+
+    function populateOptions(selectElement, dataArray, defaultText) {
+        selectElement.innerHTML = `<option value="">${defaultText}</option>`;
+        dataArray.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item;
+            opt.textContent = item;
+            selectElement.appendChild(opt);
+        });
+        selectElement.disabled = false;
+    }
+
+    function populateBrands() {
+        brandSelect.innerHTML = '<option value="">Marka Seçiniz</option>';
+        for(let brand in carData) {
+            const option = document.createElement('option');
+            option.value = brand;
+            option.textContent = brand;
+            brandSelect.appendChild(option);
+        }
+        resetSelect(seriesSelect, 'Önce Marka Seçin');
+        resetSelect(modelSelect, 'Önce Seri Seçin');
+        resetSelect(yearSelect, 'Önce Donanım Seçin');
+        resetSelect(fuelSelect, 'Önce Donanım Seçin');
+        resetSelect(transSelect, 'Önce Donanım Seçin');
+        resetSelect(powerSelect, 'Önce Donanım Seçin');
+    }
+
+    document.addEventListener('DOMContentLoaded', populateBrands);
+
+    brandSelect.addEventListener('change', function() {
+        const brand = this.value;
+        resetSelect(modelSelect, 'Önce Seri Seçin');
+        resetSelect(yearSelect, 'Önce Donanım Seçin');
+        resetSelect(fuelSelect, 'Önce Donanım Seçin');
+        resetSelect(transSelect, 'Önce Donanım Seçin');
+        resetSelect(powerSelect, 'Önce Donanım Seçin');
+        
+        if(brand && carData[brand]) {
+            const seriesList = Object.keys(carData[brand]);
+            populateOptions(seriesSelect, seriesList, 'Seri Seçiniz');
+        } else {
+            resetSelect(seriesSelect, 'Önce Marka Seçin');
+        }
+    });
+
+    seriesSelect.addEventListener('change', function() {
+        const brand = brandSelect.value;
+        const series = this.value;
+        resetSelect(yearSelect, 'Önce Donanım Seçin');
+        resetSelect(fuelSelect, 'Önce Donanım Seçin');
+        resetSelect(transSelect, 'Önce Donanım Seçin');
+        resetSelect(powerSelect, 'Önce Donanım Seçin');
+        
+        if(brand && series && carData[brand][series]) {
+            const modelsList = Object.keys(carData[brand][series]);
+            populateOptions(modelSelect, modelsList, 'Donanım Seçiniz');
+        } else {
+            resetSelect(modelSelect, 'Önce Seri Seçin');
+        }
+    });
+
+    modelSelect.addEventListener('change', function() {
+        const brand = brandSelect.value;
+        const series = seriesSelect.value;
+        const model = this.value;
+        
+        if(brand && series && model && carData[brand][series][model]) {
+            const specs = carData[brand][series][model];
+            
+            populateOptions(yearSelect, specs.years, 'Model Yılı Seçin');
+            populateOptions(fuelSelect, specs.fuels, 'Yakıt Tipi Seçin');
+            populateOptions(transSelect, specs.transmissions, 'Vites Seçin');
+            populateOptions(powerSelect, specs.powers, 'Motor Gücü Seçin');
+        } else {
+            resetSelect(yearSelect, 'Önce Donanım Seçin');
+            resetSelect(fuelSelect, 'Önce Donanım Seçin');
+            resetSelect(transSelect, 'Önce Donanım Seçin');
+            resetSelect(powerSelect, 'Önce Donanım Seçin');
+        }
+    });
+
+    function nextStep() {
+        if(!brandSelect.value || !seriesSelect.value || !modelSelect.value || !yearSelect.value || !fuelSelect.value || !transSelect.value || !powerSelect.value) {
+            alert("Lütfen tüm araç özelliklerini doldurunuz.");
+            return;
+        }
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('step2').classList.add('active');
+    }
+
+    function prevStep() {
+        document.getElementById('step2').classList.remove('active');
+        document.getElementById('step1').classList.add('active');
+    }
+
+    function toggleDate(inputId, isUnknown) {
+        const inputField = document.getElementById(inputId);
+        if (isUnknown) {
+            inputField.value = '';
+            inputField.disabled = true;
+            inputField.required = false;
+        } else {
+            inputField.disabled = false;
+            inputField.required = true;
+        }
+    }
+</script>
+{% endblock %}

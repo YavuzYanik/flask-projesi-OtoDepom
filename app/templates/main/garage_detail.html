@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Dark Theme Özelleştirmeleri */
+    .detail-card {
+        background-color: var(--surface-color);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    }
+    
+    .spec-item {
+        background-color: #121418;
+        border: 1px solid var(--border-color);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        text-align: center;
+        transition: 0.3s;
+    }
+    .spec-item:hover { border-color: var(--accent-color); transform: translateY(-3px); }
+    
+    .modal-content {
+        background-color: var(--surface-color);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+    }
+    .modal-header { border-bottom: 1px solid var(--border-color); }
+    .modal-footer { border-top: 1px solid var(--border-color); }
+    
+    .form-control, .form-select {
+        background-color: #121418;
+        border: 1px solid var(--border-color);
+        color: #fff;
+    }
+    .form-control:focus {
+        background-color: #121418;
+        border-color: var(--accent-color);
+        color: #fff;
+        box-shadow: 0 0 0 0.25rem rgba(123, 61, 235, 0.25);
+    }
+</style>
+
+<!-- Üst Başlık ve Geri Butonu -->
+<div class="d-flex justify-content-between align-items-center mb-4 mt-2 border-bottom pb-3" style="border-color: var(--border-color) !important;">
+    <a href="{{ url_for('main.garage') }}" class="btn btn-outline-secondary text-white border-0"><i class="fa-solid fa-arrow-left me-2"></i> Garaja Dön</a>
+    <form action="{{ url_for('main.vehicle_delete', id=vehicle.id) }}" method="POST" onsubmit="return confirm('Bu aracı garajdan silmek istediğinize emin misiniz? Tüm hatırlatıcılar da silinecektir.');">
+        <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash me-2"></i> Aracı Sil</button>
+    </form>
+</div>
+
+<div class="row">
+    <!-- Araç Özeti (Sol) -->
+    <div class="col-lg-5 mb-4">
+        <div class="detail-card p-4 h-100">
+            <div class="text-center mb-4 pb-3 border-bottom" style="border-color: var(--border-color) !important;">
+                
+                {% set brand_domains = {
+                    'BMW': 'bmw.com',
+                    'Renault': 'renault.com.tr',
+                    'Toyota': 'toyota.com',
+                    'Ford': 'ford.com',
+                    'Fiat': 'fiat.com',
+                    'Volkswagen': 'vw.com',
+                    'Honda': 'honda.com',
+                    'Hyundai': 'hyundai.com',
+                    'Mercedes-Benz': 'mercedes-benz.com',
+                    'Audi': 'audi.com',
+                    'Peugeot': 'peugeot.com',
+                    'Skoda': 'skoda-auto.com',
+                    'Dacia': 'dacia.com'
+                } %}
+                {% set domain = brand_domains.get(vehicle.brand, 'auto.com') %}
+                
+                <div class="my-4 d-flex justify-content-center align-items-center" style="height: 120px;">
+                    <img src="https://logo.clearbit.com/{{ domain }}" 
+                         alt="{{ vehicle.brand }} Logo" 
+                         style="max-height: 100px; max-width: 180px; object-fit: contain; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));"
+                         onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/car-side.svg'; this.style.filter='invert(1) opacity(0.3)';">
+                </div>
+
+                <h2 class="fw-bold text-white mb-1">{{ vehicle.brand }}</h2>
+                <h5 style="color: var(--accent-color);">{{ vehicle.model_name }}</h5>
+                
+                {% if vehicle.plate %}
+                <div class="d-inline-block mt-3 px-4 py-2 rounded" style="background-color: #0028a5; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,40,165,0.4);">
+                    <span class="text-white fw-bold fs-5" style="font-family: monospace; letter-spacing: 2px;">{{ vehicle.plate }}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="spec-item">
+                        <i class="fa-solid fa-calendar-days mb-2" style="font-size: 1.5rem; color: #a0a5b1;"></i>
+                        <small class="d-block text-muted">Model Yılı</small>
+                        <span class="fw-bold text-white">{{ vehicle.year }}</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="spec-item">
+                        <i class="fa-solid fa-gas-pump mb-2" style="font-size: 1.5rem; color: #a0a5b1;"></i>
+                        <small class="d-block text-muted">Yakıt Tipi</small>
+                        <span class="fw-bold text-white">{{ vehicle.fuel_type or '-' }}</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="spec-item">
+                        <i class="fa-solid fa-gear mb-2" style="font-size: 1.5rem; color: #a0a5b1;"></i>
+                        <small class="d-block text-muted">Vites Tipi</small>
+                        <span class="fw-bold text-white">{{ vehicle.transmission or '-' }}</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="spec-item">
+                        <i class="fa-solid fa-gauge-high mb-2" style="font-size: 1.5rem; color: #a0a5b1;"></i>
+                        <small class="d-block text-muted">Motor Gücü</small>
+                        <span class="fw-bold text-white">{{ vehicle.engine_power or '-' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row text-center mt-4 border-top pt-4" style="border-color: var(--border-color) !important;">
+                <div class="col-6 border-end" style="border-color: var(--border-color) !important;">
+                    <i class="fa-solid fa-clipboard-check mb-2 text-warning fs-3"></i>
+                    <small class="d-block text-muted">Muayene</small>
+                    <span class="fw-bold text-white fs-5">{{ vehicle.inspection_date.strftime('%d.%m.%Y') if vehicle.inspection_date else 'Belirtilmedi' }}</span>
+                </div>
+                <div class="col-6">
+                    <i class="fa-solid fa-wrench mb-2 text-success fs-3"></i>
+                    <small class="d-block text-muted">Yağ Bakımı</small>
+                    <span class="fw-bold text-white fs-5">{{ vehicle.maintenance_date.strftime('%d.%m.%Y') if vehicle.maintenance_date else 'Belirtilmedi' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bildirimler (Sağ) -->
+    <div class="col-lg-7 mb-4">
+        <div class="detail-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3" style="border-color: var(--border-color) !important;">
+                <h4 class="fw-bold mb-0 text-white"><i class="fa-regular fa-bell me-2" style="color: var(--accent-color);"></i> Hatırlatıcılar</h4>
+                <button type="button" class="btn btn-purple btn-sm px-4 py-2" data-bs-toggle="modal" data-bs-target="#addNotifModal">
+                    <i class="fa-solid fa-plus me-1"></i> Yeni Ekle
+                </button>
+            </div>
+
+            <div class="notifications-list">
+                {% for notif in vehicle.notifications %}
+                <div class="p-3 mb-3 d-flex justify-content-between align-items-center" style="background-color: #121418; border-radius: 12px; border-left: 4px solid var(--accent-color); border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <h6 class="mb-1 fw-bold text-white">{{ notif.title }}</h6>
+                        <small style="color: var(--text-muted);"><i class="fa-regular fa-calendar me-1"></i> Son Tarih: {{ notif.due_date.strftime('%d.%m.%Y') }}</small>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fa-regular fa-bell-slash mb-3 opacity-25" style="font-size: 3rem; color: var(--text-muted);"></i>
+                    <p style="color: var(--text-muted);">Bu araç için henüz özel bir hatırlatıcı eklemediniz.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="addNotifModal" tabindex="-1" data-bs-theme="dark">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-bottom border-secondary pb-3">
+        <h5 class="modal-title fw-bold text-white"><i class="fa-solid fa-bell me-2 text-warning"></i>Yeni Hatırlatıcı</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body pt-4">
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-white">Hatırlatıcı Başlığı</label>
+                {{ form.title(class="form-control", placeholder="Örn: Kasko Yenileme") }}
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold text-white">Tarih</label>
+                {{ form.due_date(class="form-control", type="date") }}
+            </div>
+            <div class="d-grid mt-4">
+                {{ form.submit(class="btn btn-purple py-2", value="Kaydet") }}
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

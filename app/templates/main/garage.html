@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Dark Theme specific to Garage to match mobile.de aesthetic */
+    .garage-card {
+        background-color: var(--surface-color);
+        color: var(--text-color);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .garage-card:hover { 
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+        border-color: var(--accent-color);
+    }
+    .add-car-btn {
+        background-color: var(--accent-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 25px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+    .add-car-btn:hover {
+        background-color: var(--accent-hover);
+        color: white;
+    }
+    .car-img-placeholder {
+        width: 100%; height: 120px; object-fit: contain;
+        margin-top: -10px;
+        filter: drop-shadow(0 10px 10px rgba(0,0,0,0.8));
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4 mt-3 border-bottom pb-3" style="border-color: var(--border-color) !important;">
+    <h2 class="fw-bold mb-0 text-white">Garajım</h2>
+    <a href="{{ url_for('main.garage_add') }}" class="add-car-btn text-decoration-none">
+        <i class="fa-solid fa-plus me-1"></i> Yeni Araç Ekle
+    </a>
+</div>
+
+<div class="row">
+    {% for vehicle in vehicles %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card garage-card h-100 p-3 position-relative">
+            <div class="card-body pb-0">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="fw-bold fs-4 mb-0 text-white">{{ vehicle.brand }}</h5>
+                        <p style="color: var(--accent-color); font-weight: 500;">{{ vehicle.model_name }} • {{ vehicle.year }}</p>
+                    </div>
+                    {% if vehicle.plate %}
+                    <div class="badge px-2 py-1" style="background-color: #0b2247; border: 1px solid #1a428a; font-family: monospace; font-size: 0.9rem;">
+                        {{ vehicle.plate }}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% set brand_domains = {
+                    'BMW': 'bmw.com',
+                    'Renault': 'renault.com.tr',
+                    'Toyota': 'toyota.com',
+                    'Ford': 'ford.com',
+                    'Fiat': 'fiat.com',
+                    'Volkswagen': 'vw.com',
+                    'Honda': 'honda.com',
+                    'Hyundai': 'hyundai.com',
+                    'Mercedes-Benz': 'mercedes-benz.com',
+                    'Audi': 'audi.com',
+                    'Peugeot': 'peugeot.com',
+                    'Skoda': 'skoda-auto.com',
+                    'Dacia': 'dacia.com'
+                } %}
+                {% set domain = brand_domains.get(vehicle.brand, 'auto.com') %}
+                
+                <div class="text-center my-3" style="height: 100px; display: flex; align-items: center; justify-content: center;">
+                    <img src="https://logo.clearbit.com/{{ domain }}" 
+                         alt="{{ vehicle.brand }} Logo" 
+                         style="max-height: 80px; max-width: 150px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));"
+                         onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/car-side.svg'; this.style.filter='invert(1) opacity(0.5)';">
+                </div>
+
+                <div class="row text-center mt-3 border-top pt-3" style="border-color: var(--border-color) !important;">
+                    <div class="col-6 border-end" style="border-color: var(--border-color) !important;">
+                        <small class="d-block" style="color: var(--text-muted);"><i class="fa-solid fa-clipboard-check"></i> Muayene</small>
+                        <span class="fw-bold" style="color: #f59e0b;">{{ vehicle.inspection_date.strftime('%d.%m.%Y') if vehicle.inspection_date else 'Belirtilmedi' }}</span>
+                    </div>
+                    <div class="col-6">
+                        <small class="d-block" style="color: var(--text-muted);"><i class="fa-solid fa-wrench"></i> Yağ Bakımı</small>
+                        <span class="fw-bold" style="color: #10b981;">{{ vehicle.maintenance_date.strftime('%d.%m.%Y') if vehicle.maintenance_date else 'Belirtilmedi' }}</span>
+                    </div>
+                </div>
+            <div class="card-footer border-0 pt-0 pb-3" style="background-color: transparent;">
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('main.garage_detail', id=vehicle.id) }}" class="btn flex-grow-1 fw-bold" style="background-color: var(--accent-color); color: white;">Detayları Yönet</a>
+                    <form action="{{ url_for('main.vehicle_delete', id=vehicle.id) }}" method="POST" onsubmit="return confirm('Bu aracı garajdan silmek istediğinize emin misiniz?');">
+                        <button type="submit" class="btn btn-outline-danger h-100 px-3" title="Sil"><i class="fa-solid fa-trash"></i></button>
+                    </form>
+                </div>
+            </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center py-5" style="background-color: var(--surface-color); border: 1px dashed var(--border-color); border-radius: 12px;">
+        <i class="fa-solid fa-car-side mb-3 opacity-25" style="font-size: 4rem; color: var(--text-muted);"></i>
+        <h4 class="text-white">Garajınız şu an boş.</h4>
+        <p style="color: var(--text-muted);">Aracınızı ekleyerek bakım ve muayene bildirimlerini takip etmeye başlayın.</p>
+        <a href="{{ url_for('main.garage_add') }}" class="btn add-car-btn mt-2">Hemen Ekle</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

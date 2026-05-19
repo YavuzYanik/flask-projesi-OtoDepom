@@ -1,6 +1,6 @@
 from typing import List, Optional
-from datetime import datetime, timezone
-from sqlalchemy import String, Integer, Float, ForeignKey, DateTime
+from datetime import datetime, timezone, date
+from sqlalchemy import String, Integer, Float, ForeignKey, DateTime, Date, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -33,13 +33,36 @@ class Vehicle(db.Model):
     brand: Mapped[str] = mapped_column(String(64))
     model_name: Mapped[str] = mapped_column(String(64))
     year: Mapped[int] = mapped_column(Integer)
+    plate: Mapped[Optional[str]] = mapped_column(String(20))
+    fuel_type: Mapped[Optional[str]] = mapped_column(String(32))
+    transmission: Mapped[Optional[str]] = mapped_column(String(32))
+    engine_power: Mapped[Optional[str]] = mapped_column(String(32))
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    
+    # Yeni eklenen tarih alanları
+    inspection_date: Mapped[Optional[date]] = mapped_column(Date)
+    maintenance_date: Mapped[Optional[date]] = mapped_column(Date)
 
     # İlişkiler
     owner: Mapped["User"] = relationship(back_populates="vehicles")
+    notifications: Mapped[List["VehicleNotification"]] = relationship(back_populates="vehicle", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'<Vehicle {self.brand} {self.model_name} {self.year}>'
+
+class VehicleNotification(db.Model):
+    __tablename__ = 'vehicle_notifications'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    vehicle_id: Mapped[int] = mapped_column(ForeignKey('vehicles.id'))
+    title: Mapped[str] = mapped_column(String(128))
+    due_date: Mapped[date] = mapped_column(Date)
+    is_completed: Mapped[bool] = mapped_column(Boolean, default=False)
+    
+    # İlişkiler
+    vehicle: Mapped["Vehicle"] = relationship(back_populates="notifications")
+    
+    def __repr__(self):
+        return f'<Notification {self.title} for Vehicle {self.vehicle_id}>'
 
 class Product(db.Model):
     __tablename__ = 'products'
