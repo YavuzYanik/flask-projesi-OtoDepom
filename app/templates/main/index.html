@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-white rounded-3 text-center shadow-sm border">
+    <div class="container-fluid py-5">
+        <h1 class="display-5 fw-bold text-primary mb-3">OtoDepom'a Hoş Geldiniz</h1>
+        <p class="col-md-8 mx-auto fs-5 text-muted mb-4">
+            Aracınızın marka, model ve yılına tam uyumlu motor yağı, akü ve lastikleri 
+            bulmanın en kolay yolu. Garajınızı oluşturun, doğru parçayı tek tıkla sipariş edin.
+        </p>
+        {% if not current_user.is_authenticated %}
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg mt-2 px-5 rounded-pill shadow-sm">Hemen Kayıt Ol</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary btn-lg mt-2 ms-2 px-5 rounded-pill">Giriş Yap</a>
+        {% else %}
+        <button class="btn btn-success btn-lg mt-2 px-5 rounded-pill shadow-sm">Garajıma Git (Yakında)</button>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row align-items-md-stretch text-center mt-5">
+    <div class="col-md-4 mb-4">
+        <div class="h-100 p-4 bg-white border rounded-3 shadow-sm hover-shadow transition">
+            <h2 class="h5 fw-bold text-dark mb-3">🛢️ Tam Uyumlu Motor Yağları</h2>
+            <p class="text-muted">Aracınızın spesifikasyonlarına uyan (5W-30, 10W-40 vb.) yağ çeşitleri.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="h-100 p-4 bg-white border rounded-3 shadow-sm hover-shadow transition">
+            <h2 class="h5 fw-bold text-dark mb-3">⚡ Akü Volt ve Amperleri</h2>
+            <p class="text-muted">Aracınıza küçük veya büyük gelmeyecek, tam oturan akü seçenekleri.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="h-100 p-4 bg-white border rounded-3 shadow-sm hover-shadow transition">
+            <h2 class="h5 fw-bold text-dark mb-3">🚗 Doğru Lastik Ebatları</h2>
+            <p class="text-muted">Jant çapınıza ve mevsim ihtiyacınıza uygun kaliteli lastikler.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-shadow:hover {
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+        transform: translateY(-5px);
+    }
+    .transition {
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}

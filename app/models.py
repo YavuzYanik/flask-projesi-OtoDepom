@@ -69,3 +69,9 @@ class Order(db.Model):
 
     def __repr__(self):
         return f'<Order {self.id} by User {self.user_id}>'
+
+from app import login_manager
+
+@login_manager.user_loader
+def load_user(id):
+    return db.session.get(User, int(id))
