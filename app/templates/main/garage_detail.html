@@ -48,6 +48,7 @@
         overflow: hidden;
         height: 38px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        flex-shrink: 0;
     }
     .tr-plate-blue {
         background-color: #0033A0;
@@ -70,6 +71,7 @@
         font-size: 1.3rem;
         letter-spacing: 2px;
         text-transform: uppercase;
+        white-space: nowrap;
     }
 </style>
 
@@ -87,28 +89,31 @@
         <div class="detail-card p-4 h-100">
             <div class="text-center mb-4 pb-3 border-bottom" style="border-color: var(--border-color) !important;">
                 
-                {% set brand_domains = {
-                    'BMW': 'bmw.com',
-                    'Renault': 'renault.com.tr',
-                    'Toyota': 'toyota.com',
-                    'Ford': 'ford.com',
-                    'Fiat': 'fiat.com',
-                    'Volkswagen': 'vw.com',
-                    'Honda': 'honda.com',
-                    'Hyundai': 'hyundai.com',
-                    'Mercedes-Benz': 'mercedes-benz.com',
-                    'Audi': 'audi.com',
-                    'Peugeot': 'peugeot.com',
-                    'Skoda': 'skoda-auto.com',
-                    'Dacia': 'dacia.com'
+                {% set brand_logos = {
+                    'BMW': 'BMW.png',
+                    'Renault': 'Renault.svg',
+                    'Toyota': 'Toyota.png',
+                    'Ford': 'Ford.svg',
+                    'Fiat': 'Fiat.svg',
+                    'Volkswagen': 'Volkswagen.png',
+                    'Honda': 'Honda.png',
+                    'Hyundai': 'Hyundai.png',
+                    'Mercedes-Benz': 'Mercedes-Benz.png',
+                    'Peugeot': 'Peugeot.jpg',
+                    'Skoda': 'Skoda.svg',
+                    'Dacia': 'Dacia.svg'
                 } %}
-                {% set domain = brand_domains.get(vehicle.brand, 'auto.com') %}
+                {% set logo_file = brand_logos.get(vehicle.brand, '') %}
                 
                 <div class="my-4 d-flex justify-content-center align-items-center" style="height: 120px;">
-                    <img src="https://logo.clearbit.com/{{ domain }}" 
+                    {% if logo_file %}
+                    <img src="{{ url_for('static', filename='araclogolar/' + logo_file) }}" 
                          alt="{{ vehicle.brand }} Logo" 
                          style="max-height: 100px; max-width: 180px; object-fit: contain; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));"
                          onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/car-side.svg'; this.style.filter='invert(1) opacity(0.3)'; this.style.width='100px';">
+                    {% else %}
+                    <i class="fa-solid fa-car-side opacity-50" style="font-size: 5rem; color: var(--text-muted);"></i>
+                    {% endif %}
                 </div>
 
                 <h2 class="fw-bold text-white mb-1">{{ vehicle.brand }}</h2>
@@ -118,7 +123,7 @@
                 <div class="mt-3">
                     <div class="tr-plate">
                         <div class="tr-plate-blue">TR</div>
-                        <div class="tr-plate-number">{{ vehicle.plate }}</div>
+                        <div class="tr-plate-number">{{ vehicle.plate|replace(' ', '')|truncate(11, True, '') }}</div>
                     </div>
                 </div>
                 {% endif %}

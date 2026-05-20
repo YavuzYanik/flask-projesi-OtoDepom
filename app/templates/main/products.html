@@ -1,17 +1,430 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4 mt-3 border-bottom pb-3" style="border-color: var(--border-color) !important;">
-    <h2 class="fw-bold mb-0 text-white">Tüm Ürünler</h2>
+<style>
+    /* Ürünler Alt Menüsü (Kategoriler) */
+    .product-nav {
+        background-color: var(--surface-color);
+        border-bottom: 1px solid var(--border-color);
+        padding: 0;
+        margin-top: -1.5rem; /* Container padding'i telafi etmek için */
+        margin-bottom: 2rem;
+    }
+    .product-nav .nav-link {
+        color: #a0a5b1;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 1rem 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+    }
+    .product-nav .nav-link:hover, .product-nav .nav-link.active {
+        color: var(--accent-color);
+        border-bottom-color: var(--accent-color);
+        background-color: rgba(123, 61, 235, 0.05);
+    }
+
+    /* Araca Göre Arama Kutusu */
+    .vehicle-search-box {
+        background-color: var(--surface-color);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        display: flex;
+        overflow: hidden;
+        margin-bottom: 3rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .vehicle-search-left {
+        background: #f8f9fa; /* Turuncu yerine kırık beyaz */
+        color: #121418; /* Metin rengi koyu */
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-width: 250px;
+        text-align: center;
+    }
+    .vehicle-search-right {
+        padding: 1.5rem;
+        flex-grow: 1;
+        background-color: #121418;
+    }
+    .form-select-search {
+        background-color: var(--surface-color);
+        border: 1px solid var(--border-color);
+        color: white;
+        border-radius: 8px;
+    }
+    .form-select-search:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.25rem rgba(123,61,235,0.25);
+    }
+
+    /* Ürün Kartları */
+    .section-title {
+        color: white;
+        font-weight: 700;
+        font-size: 1.5rem;
+        border-bottom: 2px solid var(--accent-color);
+        display: inline-block;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .product-card {
+        background-color: var(--surface-color);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        border-color: var(--accent-color);
+    }
+    .product-img-wrapper {
+        height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+    .product-img-wrapper img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+        filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+    }
+    .product-title {
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+    .product-spec {
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+    .product-subtitle {
+        color: #a0a5b1;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+    .product-price {
+        color: #10b981;
+        font-weight: 800;
+        font-size: 1.25rem;
+        margin-top: auto;
+    }
+
+    /* Kaydırmalı Mega Footer (Sadece bu sayfaya özel) */
+    .mega-footer {
+        background-color: #0b0c0f;
+        border-top: 1px solid var(--border-color);
+        padding: 3rem 0;
+        margin-top: 5rem;
+    }
+    .mega-footer-scrollable {
+        max-height: 350px;
+        overflow-y: auto;
+        padding-right: 15px;
+    }
+    /* Scrollbar Özelleştirme */
+    .mega-footer-scrollable::-webkit-scrollbar { width: 8px; }
+    .mega-footer-scrollable::-webkit-scrollbar-track { background: #121418; border-radius: 4px; }
+    .mega-footer-scrollable::-webkit-scrollbar-thumb { background: #2a2d35; border-radius: 4px; }
+    .mega-footer-scrollable::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
+
+    .mega-footer h6 {
+        color: white;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        font-size: 0.95rem;
+    }
+    .mega-footer ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .mega-footer ul li {
+        margin-bottom: 0.5rem;
+    }
+    .mega-footer ul li a {
+        color: #a0a5b1;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: 0.2s;
+    }
+    .mega-footer ul li a:hover {
+        color: var(--accent-color);
+    }
+</style>
+
+<!-- Kategoriler Alt Menü -->
+<div class="container-fluid px-0">
+    <ul class="nav product-nav justify-content-center" id="categoryNav">
+        <li class="nav-item">
+            <a class="nav-link active" href="#" data-target="all"><i class="fa-solid fa-layer-group me-2"></i>Tüm Ürünler</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#tires" data-target="tires"><i class="fa-solid fa-ring me-2"></i>Lastik</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#wheels" data-target="wheels"><i class="fa-solid fa-compact-disc me-2"></i>Jant</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#batteries" data-target="batteries"><i class="fa-solid fa-car-battery me-2"></i>Akü</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#oils" data-target="oils"><i class="fa-solid fa-oil-can me-2"></i>Motor Yağı</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-decoration-line-through" style="opacity:0.5; pointer-events:none;" href="#"><i class="fa-solid fa-filter me-2"></i>Filtreler</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-decoration-line-through" style="opacity:0.5; pointer-events:none;" href="#"><i class="fa-solid fa-spray-can me-2"></i>Oto Bakım</a>
+        </li>
+    </ul>
 </div>
 
-<div class="row">
-    <div class="col-12 text-center py-5 mt-4" style="background-color: var(--surface-color); border: 1px dashed var(--border-color); border-radius: 12px;">
-        <i class="fa-solid fa-boxes-stacked mb-4 opacity-25" style="font-size: 5rem; color: var(--accent-color);"></i>
-        <h3 class="text-white fw-bold">E-Ticaret Modülü Hazırlanıyor</h3>
-        <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
-            Yedek parça, motor yağı ve aksesuar ürünleri çok yakında burada listelenecek. Tüm mağaza ürünlerini buradan inceleyebileceksiniz.
-        </p>
+<div class="container">
+    
+    <!-- Araca Göre Arama Kutusu -->
+    <div class="vehicle-search-box">
+        <div class="vehicle-search-left">
+            <i class="fa-solid fa-car-side mb-2" style="font-size: 2.5rem; color: var(--accent-color);"></i>
+            <h4 class="fw-bold mb-1">ARACA GÖRE ARA</h4>
+            <small style="opacity: 0.8;">Tüm uyumlu parçaları listele</small>
+        </div>
+        <div class="vehicle-search-right">
+            <h5 class="text-white mb-3">Araca Göre <span style="color: #a0a5b1;">Ürün Ara</span></h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <select class="form-select form-select-search" onchange="if(this.value != 'default') { window.location.href='/products?vehicle_id=' + this.value; } else { window.location.href='/products'; }">
+                        <option value="default">Garajımdan Araç Seç</option>
+                        {% if current_user.is_authenticated %}
+                            {% for v in current_user.vehicles %}
+                                <option value="{{ v.id }}" {% if selected_vehicle_id == v.id %}selected{% endif %}>{{ v.brand }} {{ v.model_name }}</option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select form-select-search" disabled>
+                        <option selected>Model Seçiniz</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select form-select-search" disabled>
+                        <option selected>Yıl Seçiniz</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select form-select-search" disabled>
+                        <option selected>Donanım Seçiniz</option>
+                    </select>
+                </div>
+            </div>
+            {% if selected_vehicle_id %}
+                <p class="mt-3 mb-0 text-success" style="font-size: 0.9rem;"><i class="fa-solid fa-circle-check me-2"></i>Araç Filtresi Aktif. Sadece uyumlu ürünler gösteriliyor.</p>
+            {% else %}
+                <p class="mt-3 mb-0" style="color: #a0a5b1; font-size: 0.85rem; font-style: italic;">Sonuçlar, seçimlerinizden sonra otomatik olarak gösterilecektir.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Motor Yağları -->
+    <h3 class="section-title" id="oils">Popüler Motor Yağları</h3>
+    <div class="row g-4 mb-5">
+        {% for p in oils %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="product-card">
+                <div class="product-img-wrapper">
+                    {% if p.image_url %}
+                        <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
+                    {% else %}
+                        <i class="fa-solid fa-oil-can" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
+                    {% endif %}
+                </div>
+                <div class="product-spec">{{ p.specs }}</div>
+                <h5 class="product-title">{{ p.name }}</h5>
+                <p class="product-subtitle">{{ p.description or 'Tam Sentetik Motor Yağı' }}</p>
+                <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
+                <button class="btn btn-outline-success mt-3 w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</button>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center text-white-50 py-4">Bu kategoriye uygun motor yağı bulunamadı.</div>
+        {% endfor %}
+    </div>
+
+    <!-- Lastikler -->
+    <h3 class="section-title" id="tires">Otomobil & SUV Lastikleri</h3>
+    <div class="row g-4 mb-5">
+        {% for p in tires %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="product-card">
+                <div class="product-img-wrapper">
+                    {% if p.image_url %}
+                        <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
+                    {% else %}
+                        <i class="fa-solid fa-ring" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
+                    {% endif %}
+                </div>
+                <div class="product-spec">{{ p.specs }}</div>
+                <h5 class="product-title">{{ p.name }}</h5>
+                <p class="product-subtitle">{{ p.description or 'Yüksek Performanslı Lastik' }}</p>
+                <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
+                <button class="btn btn-outline-success mt-3 w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</button>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center text-white-50 py-4">Bu kategoriye uygun lastik bulunamadı.</div>
+        {% endfor %}
+    </div>
+
+    <!-- Aküler -->
+    <h3 class="section-title" id="batteries">Uzun Ömürlü Aküler</h3>
+    <div class="row g-4 mb-3">
+        {% for p in batteries %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="product-card">
+                <div class="product-img-wrapper">
+                    {% if p.image_url %}
+                        <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
+                    {% else %}
+                        <i class="fa-solid fa-car-battery" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
+                    {% endif %}
+                </div>
+                <div class="product-spec">{{ p.specs }}</div>
+                <h5 class="product-title">{{ p.name }}</h5>
+                <p class="product-subtitle">{{ p.description or 'Yüksek Amperli Akü' }}</p>
+                <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
+                <button class="btn btn-outline-success mt-3 w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</button>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center text-white-50 py-4">Bu kategoriye uygun akü bulunamadı.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    // Alt menü navigasyonu aktifleştirme (Basit Scroll Davranışı)
+    document.querySelectorAll('.product-nav .nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            document.querySelectorAll('.product-nav .nav-link').forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+</script>
+
+<!-- Mega Footer (Kaydırmalı Kategori Listesi) -->
+<div class="mega-footer">
+    <div class="container">
+        <div class="mega-footer-scrollable">
+            <div class="row">
+                <!-- Kategoriler -->
+                <div class="col-md-3 mb-4">
+                    <h6>Kategoriler</h6>
+                    <ul>
+                        <li><a href="#">Lastik</a></li>
+                        <li><a href="#">Yaz Lastiği</a></li>
+                        <li><a href="#">Kış Lastiği</a></li>
+                        <li><a href="#">Dört Mevsim Lastikler</a></li>
+                        <li><a href="#">Otomobil Lastikleri</a></li>
+                        <li><a href="#">SUV 4x4 Lastikleri</a></li>
+                        <li><a href="#">Hafif Ticari Lastikleri</a></li>
+                        <li><a href="#">Akü</a></li>
+                        <li><a href="#">Otomobil Aküleri</a></li>
+                        <li><a href="#">Ağır Vasıta Aküleri</a></li>
+                        <li><a href="#">Start-Stop Aküler</a></li>
+                        <li><a href="#">Motor Yağı</a></li>
+                        <li><a href="#">5W-30 Motor Yağları</a></li>
+                        <li><a href="#">10W-40 Motor Yağları</a></li>
+                        <li><a href="#">Jant</a></li>
+                        <li><a href="#">Filtre Setleri</a></li>
+                        <li><a href="#">Oto Bakım Ürünleri</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Popüler Ebatlar / Spesifikasyonlar -->
+                <div class="col-md-3 mb-4">
+                    <h6>Popüler Lastik Ebatları</h6>
+                    <ul>
+                        <li><a href="#">205/55 R16</a></li>
+                        <li><a href="#">195/65 R15</a></li>
+                        <li><a href="#">225/45 R17</a></li>
+                        <li><a href="#">185/65 R15</a></li>
+                        <li><a href="#">175/65 R14</a></li>
+                        <li><a href="#">215/55 R16</a></li>
+                        <li><a href="#">215/50 R17</a></li>
+                        <li><a href="#">205/60 R16</a></li>
+                        <li><a href="#">235/45 R18</a></li>
+                        <li><a href="#">225/50 R17</a></li>
+                        <li><a href="#">195/55 R16</a></li>
+                        <li><a href="#">215/65 R16</a></li>
+                        <li><a href="#">225/60 R17</a></li>
+                        <li><a href="#">215/60 R17</a></li>
+                        <li><a href="#">255/35 R19</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Popüler Markalar -->
+                <div class="col-md-3 mb-4">
+                    <h6>Popüler Markalar</h6>
+                    <ul>
+                        <li><a href="#">Michelin</a></li>
+                        <li><a href="#">Bridgestone</a></li>
+                        <li><a href="#">Goodyear</a></li>
+                        <li><a href="#">Continental</a></li>
+                        <li><a href="#">Hankook</a></li>
+                        <li><a href="#">Pirelli</a></li>
+                        <li><a href="#">Lassa</a></li>
+                        <li><a href="#">Petlas</a></li>
+                        <li><a href="#">Falken</a></li>
+                        <li><a href="#">Castrol</a></li>
+                        <li><a href="#">Motul</a></li>
+                        <li><a href="#">Liqui Moly</a></li>
+                        <li><a href="#">Varta</a></li>
+                        <li><a href="#">Mutlu Akü</a></li>
+                        <li><a href="#">Bosch</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Kurumsal ve İletişim -->
+                <div class="col-md-3 mb-4">
+                    <h6>OtoDepom</h6>
+                    <ul>
+                        <li><a href="{{ url_for('main.about') }}">Hakkımızda</a></li>
+                        <li><a href="#">İşlem Rehberi</a></li>
+                        <li><a href="#">Gizlilik ve Güvenlik</a></li>
+                        <li><a href="#">Üyelik Sözleşmesi</a></li>
+                        <li><a href="#">İptal ve İade Koşulları</a></li>
+                        <li><a href="#">İletişim</a></li>
+                        <li><a href="#">Yardım Merkezi</a></li>
+                    </ul>
+                    <h6 class="mt-4 mb-3">Bize Ulaşın</h6>
+                    <ul style="color: #a0a5b1; font-size: 0.85rem;">
+                        <li><i class="fa-solid fa-phone me-2"></i> 0850 123 45 67</li>
+                        <li><i class="fa-solid fa-envelope me-2"></i> info@otodepom.com</li>
+                        <li class="mt-2"><i class="fa-regular fa-clock me-2"></i> Çalışma Saatlerimiz</li>
+                        <li>Hafta İçi: 09.00 - 18.00</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

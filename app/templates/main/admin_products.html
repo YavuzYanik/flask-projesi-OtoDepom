@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .admin-container {
+        margin-top: 3rem;
+        margin-bottom: 5rem;
+    }
+    .admin-card {
+        background-color: var(--surface-color);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .admin-title {
+        color: white;
+        font-weight: 700;
+        font-size: 1.75rem;
+        border-bottom: 2px solid var(--accent-color);
+        display: inline-block;
+        padding-bottom: 0.5rem;
+        margin-bottom: 2rem;
+    }
+    .form-control-admin, .form-select-admin {
+        background-color: #121418;
+        border: 1px solid var(--border-color);
+        color: white;
+        border-radius: 8px;
+    }
+    .form-control-admin:focus, .form-select-admin:focus {
+        background-color: #121418;
+        border-color: var(--accent-color);
+        color: white;
+        box-shadow: 0 0 0 0.25rem rgba(123,61,235,0.25);
+    }
+    .admin-table {
+        color: white;
+    }
+    .admin-table th {
+        background-color: #121418 !important;
+        border-color: var(--border-color);
+        color: #a0a5b1;
+    }
+    .admin-table td {
+        background-color: transparent !important;
+        border-color: var(--border-color);
+        vertical-align: middle;
+    }
+    .product-thumbnail {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+        border-radius: 8px;
+        background-color: #1a1d24;
+        padding: 4px;
+        border: 1px solid var(--border-color);
+    }
+</style>
+
+<div class="container admin-container">
+    <div class="row g-4">
+        <!-- Ürün Ekleme Paneli -->
+        <div class="col-lg-4">
+            <div class="admin-card">
+                <h3 class="admin-title">Yeni Ürün Ekle</h3>
+                <form action="{{ url_for('main.admin_products') }}" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="name" class="form-label text-white-50">Ürün Adı</label>
+                        <input type="text" class="form-control form-control-admin" id="name" name="name" required placeholder="Örn: Michelin Primacy 4+">
+                    </div>
+                    <div class="mb-3">
+                        <label for="category" class="form-label text-white-50">Kategori</label>
+                        <select class="form-select form-select-admin" id="category" name="category" required>
+                            <option value="" disabled selected>Kategori Seçiniz</option>
+                            <option value="Lastik">Lastik</option>
+                            <option value="Akü">Akü</option>
+                            <option value="Motor Yağı">Motor Yağı</option>
+                            <option value="Jant">Jant</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="specs" class="form-label text-white-50">Ebat / Teknik Değer</label>
+                        <input type="text" class="form-control form-control-admin" id="specs" name="specs" required placeholder="Kategori seçiniz...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="price" class="form-label text-white-50">Fiyat (TL)</label>
+                        <input type="text" class="form-control form-control-admin price-formatter-input" id="price" name="price" required placeholder="0.00">
+                    </div>
+                    <div class="mb-3">
+                        <label for="image" class="form-label text-white-50">Ürün Görseli</label>
+                        <input type="file" class="form-control form-control-admin" id="image" name="image" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fa-solid fa-plus me-2"></i>Ürünü Kaydet</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Ürün Listesi Paneli -->
+        <div class="col-lg-8">
+            <div class="admin-card">
+                <h3 class="admin-title">Kayıtlı Ürünler</h3>
+                <div class="table-responsive">
+                    <table class="table admin-table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Görsel</th>
+                                <th>Ürün Adı</th>
+                                <th>Kategori</th>
+                                <th>Değer/Ebat</th>
+                                <th>Fiyat</th>
+                                <th class="text-end">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in products %}
+                            <tr>
+                                <td>
+                                    {% if p.image_url %}
+                                        <img src="{{ url_for('static', filename='products/' + p.image_url) }}" class="product-thumbnail" alt="{{ p.name }}">
+                                    {% else %}
+                                        <div class="product-thumbnail d-flex align-items-center justify-content-center">
+                                            <i class="fa-solid fa-image text-white-50"></i>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td class="fw-bold">{{ p.name }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ p.category }}</span>
+                                </td>
+                                <td>{{ p.specs }}</td>
+                                <td class="text-success fw-bold">{{ "{:,.2f}".format(p.price) }} TL</td>
+                                <td class="text-end">
+                                    <button type="button" class="btn btn-warning btn-sm me-1" data-bs-toggle="modal" data-bs-target="#editModal{{ p.id }}">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <form action="{{ url_for('main.product_delete', id=p.id) }}" method="POST" onsubmit="return confirm('Bu ürünü silmek istediğinize emin misiniz?');" style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+
+                            <!-- Düzenleme Modalı -->
+                            <div class="modal fade" id="editModal{{ p.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ p.id }}" aria-hidden="true">
+                              <div class="modal-dialog">
+                                <div class="modal-content text-white" style="background-color: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px;">
+                                  <div class="modal-header border-bottom-0">
+                                    <h5 class="modal-title fw-bold" id="editModalLabel{{ p.id }}">Ürün Düzenle: {{ p.name }}</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                                  </div>
+                                  <form action="{{ url_for('main.admin_products_edit', id=p.id) }}" method="POST" enctype="multipart/form-data">
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label text-white-50">Ürün Adı</label>
+                                            <input type="text" class="form-control form-control-admin" name="name" value="{{ p.name }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-white-50">Kategori</label>
+                                            <select class="form-select form-select-admin category-select-guide" name="category" data-specs-id="editSpecs{{ p.id }}" required>
+                                                <option value="Lastik" {% if p.category == 'Lastik' %}selected{% endif %}>Lastik</option>
+                                                <option value="Akü" {% if p.category == 'Akü' %}selected{% endif %}>Akü</option>
+                                                <option value="Motor Yağı" {% if p.category == 'Motor Yağı' %}selected{% endif %}>Motor Yağı</option>
+                                                <option value="Jant" {% if p.category == 'Jant' %}selected{% endif %}>Jant</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-white-50">Ebat / Teknik Değer</label>
+                                            <input type="text" class="form-control form-control-admin" id="editSpecs{{ p.id }}" name="specs" value="{{ p.specs }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-white-50">Fiyat (TL)</label>
+                                            <input type="text" class="form-control form-control-admin price-formatter-input" name="price" value="{{ '{:,.2f}'.format(p.price) }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-white-50">Ürün Görseli (Boş bırakılırsa mevcut görsel kalır)</label>
+                                            <input type="file" class="form-control form-control-admin" name="image" accept="image/*">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer border-top-0">
+                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                                      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save me-2"></i>Değişiklikleri Kaydet</button>
+                                    </div>
+                                  </form>
+                                </div>
+                              </div>
+                            </div>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-white-50 py-4">Kayıtlı ürün bulunmamaktadır.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Kategori Değiştiğinde Teknik Değer placeholder güncelleme kılavuzu
+    function setupCategoryGuide(selectEl, specsEl) {
+        if (!selectEl || !specsEl) return;
+        
+        function updatePlaceholder() {
+            const cat = selectEl.value;
+            if (cat === 'Lastik') {
+                specsEl.placeholder = 'Örn: 205/55 R16';
+            } else if (cat === 'Akü') {
+                specsEl.placeholder = 'Örn: 12V 74Ah';
+            } else if (cat === 'Motor Yağı') {
+                specsEl.placeholder = 'Örn: 5W-30';
+            } else if (cat === 'Jant') {
+                specsEl.placeholder = 'Örn: 16 inç';
+            } else {
+                specsEl.placeholder = 'Teknik değerleri giriniz...';
+            }
+        }
+        
+        selectEl.addEventListener('change', updatePlaceholder);
+        // Düzenleme modalında veya yüklendiğinde mevcut değeri korumak için sadece placeholder ayarla
+        updatePlaceholder();
+    }
+
+    // Ekleme formu için kılavuz
+    setupCategoryGuide(
+        document.getElementById('category'), 
+        document.getElementById('specs')
+    );
+
+    // Düzenleme modalları için kılavuzları bağla
+    document.querySelectorAll('.category-select-guide').forEach(select => {
+        const specsId = select.getAttribute('data-specs-id');
+        if (specsId) {
+            const specsEl = document.getElementById(specsId);
+            setupCategoryGuide(select, specsEl);
+        }
+    });
+
+    // 2. Fiyat alanları otomatik binlik ayırıcı (virgül) formatlayıcı
+    function setupPriceFormatter(inputEl) {
+        if (!inputEl) return;
+        
+        function formatValue() {
+            let cursorPosition = inputEl.selectionStart;
+            let originalLength = inputEl.value.length;
+            
+            // Sadece rakamları ve tek noktayı koru
+            let cleanVal = inputEl.value.replace(/[^0-9.]/g, '');
+            let parts = cleanVal.split('.');
+            if (parts.length > 2) {
+                cleanVal = parts[0] + '.' + parts.slice(1).join('');
+            }
+            
+            // Binlik ayıracı (virgül) ekleme işlemi
+            let formatted = '';
+            let integerPart = parts[0];
+            let decimalPart = parts[1] !== undefined ? '.' + parts[1].substring(0, 2) : '';
+            
+            formatted = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + decimalPart;
+            inputEl.value = formatted;
+            
+            // Kursör pozisyonunu koru
+            let newLength = inputEl.value.length;
+            let finalPos = cursorPosition + (newLength - originalLength);
+            inputEl.setSelectionRange(finalPos, finalPos);
+        }
+
+        inputEl.addEventListener('input', formatValue);
+        
+        // Sayfa yüklendiğinde değer varsa biçimlendir
+        if (inputEl.value) {
+            formatValue();
+        }
+    }
+
+    // Tüm fiyat alanlarına formatter uygula
+    document.querySelectorAll('.price-formatter-input').forEach(setupPriceFormatter);
+});
+</script>
+{% endblock %}

@@ -21,7 +21,7 @@ class RegisterForm(FlaskForm):
             raise ValidationError('Bu kullanıcı adı alınmış. Lütfen başka bir tane seçin.')
 
 class LoginForm(FlaskForm):
-    email = StringField('E-posta', validators=[DataRequired(), Email()])
+    username_or_email = StringField('E-posta veya Kullanıcı Adı', validators=[DataRequired()])
     password = PasswordField('Şifre', validators=[DataRequired()])
     remember = BooleanField('Beni Hatırla')
     submit = SubmitField('Giriş Yap')

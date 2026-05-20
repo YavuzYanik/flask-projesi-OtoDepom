@@ -12,11 +12,15 @@ class User(UserMixin, db.Model):
     username: Mapped[str] = mapped_column(String(64), index=True, unique=True)
     email: Mapped[str] = mapped_column(String(120), index=True, unique=True)
     password_hash: Mapped[Optional[str]] = mapped_column(String(256))
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     # İlişkiler
     vehicles: Mapped[List["Vehicle"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
     orders: Mapped[List["Order"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -26,6 +30,12 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return f'<User {self.username}>'
+
+# Araçlar ile Ürünler arasındaki çoka-çok ilişki (Uyumlu ürünler)
+product_compatibility = db.Table('product_compatibility',
+    db.Column('product_id', db.Integer, db.ForeignKey('products.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('vehicle_id', db.Integer, db.ForeignKey('vehicles.id', ondelete='CASCADE'), primary_key=True)
+)
 
 class Vehicle(db.Model):
     __tablename__ = 'vehicles'
@@ -46,6 +56,13 @@ class Vehicle(db.Model):
     # İlişkiler
     owner: Mapped["User"] = relationship(back_populates="vehicles")
     notifications: Mapped[List["VehicleNotification"]] = relationship(back_populates="vehicle", cascade="all, delete-orphan")
+    compatible_products: Mapped[List["Product"]] = relationship(
+        secondary=product_compatibility,
+        back_populates="compatible_vehicles"
+    )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f'<Vehicle {self.brand} {self.model_name} {self.year}>'
@@ -61,6 +78,9 @@ class VehicleNotification(db.Model):
     # İlişkiler
     vehicle: Mapped["Vehicle"] = relationship(back_populates="notifications")
     
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def __repr__(self):
         return f'<Notification {self.title} for Vehicle {self.vehicle_id}>'
 
@@ -71,9 +91,17 @@ class Product(db.Model):
     category: Mapped[str] = mapped_column(String(64), index=True)
     specs: Mapped[Optional[str]] = mapped_column(String(256))
     price: Mapped[float] = mapped_column(Float)
+    image_url: Mapped[Optional[str]] = mapped_column(String(256))
 
     # İlişkiler
     orders: Mapped[List["Order"]] = relationship(back_populates="product")
+    compatible_vehicles: Mapped[List["Vehicle"]] = relationship(
+        secondary=product_compatibility,
+        back_populates="compatible_products"
+    )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f'<Product {self.name}>'
@@ -89,6 +117,9 @@ class Order(db.Model):
     # İlişkiler
     user: Mapped["User"] = relationship(back_populates="orders")
     product: Mapped["Product"] = relationship(back_populates="orders")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f'<Order {self.id} by User {self.user_id}>'

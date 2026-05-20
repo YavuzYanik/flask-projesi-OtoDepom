@@ -89,7 +89,7 @@
                         <a class="nav-link" href="{{ url_for('main.index') }}">Ana Sayfa <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Hakkımızda <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
+                        <a class="nav-link" href="{{ url_for('main.about') }}">Hakkımızda <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.products') }}">Ürünler <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
@@ -103,6 +103,9 @@
                         <a class="nav-link" href="#"><i class="fa-regular fa-star"></i></a>
                     </li>
                     <li class="nav-item me-3">
+                        <a class="nav-link" href="#"><i class="fa-solid fa-cart-shopping"></i> Sepetim</a>
+                    </li>
+                    <li class="nav-item me-3">
                         <a class="nav-link" href="{{ url_for('main.garage') }}"><i class="fa-regular fa-heart"></i> Garajım</a>
                     </li>
 
@@ -112,6 +115,10 @@
                             <i class="fa-regular fa-user me-1"></i> {{ current_user.username }}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" style="background-color: var(--surface-color); border: 1px solid var(--border-color);">
+                            {% if current_user.is_admin or current_user.username == 'admin' %}
+                            <li><a class="dropdown-item text-white" href="{{ url_for('main.admin_products') }}"><i class="fa-solid fa-gear me-2"></i>Ürün Yönetimi</a></li>
+                            <li><hr class="dropdown-divider" style="border-color: var(--border-color);"></li>
+                            {% endif %}
                             <li><a class="dropdown-item text-white" href="{{ url_for('auth.logout') }}">Çıkış Yap</a></li>
                         </ul>
                     </li>

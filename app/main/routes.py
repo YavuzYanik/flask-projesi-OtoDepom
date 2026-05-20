@@ -1,9 +1,11 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from app import db
 from app.main import main
-from app.models import Vehicle, VehicleNotification
+from app.models import Vehicle, VehicleNotification, Product
 from app.main.forms import VehicleForm, NotificationForm
+from werkzeug.utils import secure_filename
+import os
 
 @main.route('/')
 @main.route('/index')
@@ -56,6 +58,12 @@ def garage_add():
             maintenance_date=maint_date,
             owner=current_user
         )
+        
+        # Eklenen aracı mevcut tüm ürünlere uyumlu olarak bağla
+        all_products = Product.query.all()
+        for p in all_products:
+            vehicle.compatible_products.append(p)
+
         db.session.add(vehicle)
         db.session.commit()
         flash('Aracınız başarıyla garaja eklendi!', 'success')
@@ -131,4 +139,139 @@ def update_dates(id):
 
 @main.route('/products')
 def products():
-    return render_template('main/products.html', title='Ürünler')
+    selected_vehicle_id = request.args.get('vehicle_id', type=int)
+    
+    # Kullanıcının araçlarını yükle
+    user_vehicles = []
+    if current_user.is_authenticated:
+        user_vehicles = current_user.vehicles
+
+    if selected_vehicle_id:
+        vehicle = db.session.get(Vehicle, selected_vehicle_id)
+        if vehicle:
+            products_list = vehicle.compatible_products
+        else:
+            products_list = Product.query.all()
+    else:
+        products_list = Product.query.all()
+
+    # Kategorilere ayır
+    tires = [p for p in products_list if p.category == 'Lastik']
+    oils = [p for p in products_list if p.category == 'Motor Yağı']
+    batteries = [p for p in products_list if p.category == 'Akü']
+
+    return render_template('main/products.html', title='Ürünler',
+                           tires=tires, oils=oils, batteries=batteries,
+                           user_vehicles=user_vehicles, selected_vehicle_id=selected_vehicle_id)
+
+@main.route('/about')
+def about():
+    return render_template('main/about.html', title='Hakkımızda')
+
+# --- ADMIN ROUTELARI ---
+@main.route('/admin/products', methods=['GET', 'POST'])
+@login_required
+def admin_products():
+    # Admin kontrolü: Kullanıcı adı 'admin' olan veya is_admin bayrağı True olan girebilir
+    if not current_user.is_admin and current_user.username != 'admin':
+        flash('Bu alana erişim yetkiniz yok!', 'danger')
+        return redirect(url_for('main.index'))
+
+    if request.method == 'POST':
+        name = request.form.get('name')
+        category = request.form.get('category')
+        specs = request.form.get('specs')
+        
+        # Fiyattaki binlik ayıracı (virgül) temizleme işlemi
+        price_str = request.form.get('price')
+        price = 0.0
+        if price_str:
+            try:
+                price = float(price_str.replace(',', ''))
+            except ValueError:
+                price = 0.0
+        
+        # Görsel yükleme işlemi
+        file = request.files.get('image')
+        filename = None
+        if file and file.filename != '':
+            filename = secure_filename(file.filename)
+            upload_folder = os.path.join(current_app.root_path, 'static', 'products')
+            os.makedirs(upload_folder, exist_ok=True)
+            file.save(os.path.join(upload_folder, filename))
+
+        product = Product(
+            name=name,
+            category=category,
+            specs=specs,
+            price=price,
+            image_url=filename
+        )
+
+        # Yeni ürünü mevcut tüm araçlara uyumlu olarak bağla
+        all_vehicles = Vehicle.query.all()
+        for v in all_vehicles:
+            product.compatible_vehicles.append(v)
+
+        db.session.add(product)
+        db.session.commit()
+        flash('Yeni ürün başarıyla eklendi ve tüm araçlara tanımlandı!', 'success')
+        return redirect(url_for('main.admin_products'))
+
+    products_list = Product.query.all()
+    return render_template('main/admin_products.html', title='Ürün Yönetimi', products=products_list)
+
+@main.route('/admin/products/edit/<int:id>', methods=['POST'])
+@login_required
+def admin_products_edit(id):
+    if not current_user.is_admin and current_user.username != 'admin':
+        flash('Yetkisiz işlem!', 'danger')
+        return redirect(url_for('main.index'))
+
+    product = db.session.get(Product, id)
+    if not product:
+        flash('Ürün bulunamadı.', 'danger')
+        return redirect(url_for('main.admin_products'))
+
+    if request.method == 'POST':
+        product.name = request.form.get('name')
+        product.category = request.form.get('category')
+        product.specs = request.form.get('specs')
+        
+        # Fiyattaki binlik ayıracı (virgül) temizleme işlemi
+        price_str = request.form.get('price')
+        if price_str:
+            try:
+                product.price = float(price_str.replace(',', ''))
+            except ValueError:
+                pass
+
+        file = request.files.get('image')
+        if file and file.filename != '':
+            filename = secure_filename(file.filename)
+            upload_folder = os.path.join(current_app.root_path, 'static', 'products')
+            os.makedirs(upload_folder, exist_ok=True)
+            file.save(os.path.join(upload_folder, filename))
+            product.image_url = filename
+
+        db.session.commit()
+        flash('Ürün başarıyla güncellendi!', 'success')
+
+    return redirect(url_for('main.admin_products'))
+
+@main.route('/admin/products/delete/<int:id>', methods=['POST'])
+@login_required
+def product_delete(id):
+    if not current_user.is_admin and current_user.username != 'admin':
+        flash('Yetkisiz işlem!', 'danger')
+        return redirect(url_for('main.index'))
+
+    product = db.session.get(Product, id)
+    if product:
+        db.session.delete(product)
+        db.session.commit()
+        flash('Ürün başarıyla silindi.', 'success')
+    else:
+        flash('Ürün bulunamadı.', 'danger')
+    return redirect(url_for('main.admin_products'))
+
