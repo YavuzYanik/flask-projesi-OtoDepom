@@ -1,5 +1,5 @@
 # AI Günlüğü
-## 
+
 ## Oturum [1] — [14.05.2026] — [20:47 - 22:07 ]
 ### Hedef
 İLK İŞLEMLERİ YAPTIM
@@ -206,3 +206,49 @@ Garaj (Araç Ekleme) sisteminin premium bir arayüzle kurulması, "Dark Mode" (K
 
 ### Sonraki Oturum İçin Notlar
 10 Adımlık Geliştirme Yol Haritamızın 1. Adımı (Garaj, Kayıt, Filtreleme Tabanı) kusursuz tamamlandı. Bugünlük bitti. Sonraki günlerde sisteme seçili araç modeline tam uyumlu "Ürün (Yağ, Akü) Çekme ve Gösterme" sayfalarını (Adım 2) yapmaya başlayacağız.
+
+
+## Oturum [5] — [20.05.2026] — [12:15 - 17:00]
+### Hedef
+E-ticaret ve ürün listeleme altyapısının veritabanına taşınması. Yönetici (admin) rolünün tanımlanarak ürün ekleme, silme ve düzenleme panellerinin kodlanması. Ürünlerin garajdaki araçlarla many-to-many (çoka-çok) ilişki kurularak araca göre dinamik ürün listelemenin tamamlanması. Giriş ekranının pratikleştirilmesi ve gelişmiş arayüz form kontrollerinin yazılması.
+
+### Kullandığım Mod ve Model
+- Mod: Code / HIGH
+- Model: Gemini (Antigravity YARDIMCI)
+- Görünüm: Editor / Manager
+
+### Verdiğim Promptlar
+1. Sitede bir admin rolü olsun. Sadece 'admin' kullanıcısı ürün ekleme ve silme yetkisine sahip olsun. Ürünlerin hepsi veritabanında kayıtlı ürünler olacak ve garajdaki araçlarla ilişkili olacak.
+2. Ürünler sayfasında lastiklerde ebat bilgileri, akülerde volt ve amper değerleri üstte daha kalın puntolarla yazsın. Garajımdan bir araç seçtiğimde sadece o araca uyumlu ürünler gösterilsin.
+3. Giriş yapma ekranını kolaylaştır. Kullanıcı sadece e-posta değil, kullanıcı adını yazarak da sisteme giriş yapabilsin.
+4. Ürün yönetiminde ürün düzenleme (update) şemasını da ekle. Fiyat girerken 1000 yazınca otomatik binlik ayıracı gelip 1,000 yazsın. Kategoriye göre de ebat alanı placeholder'ları otomatik değişsin (Lastik için XXX/XX RXX, Akü için XXV XXAh gibi kılavuzlar çıksın).
+
+### Ajanın Önerdiği Plan
+1. Veritabanına `is_admin` rolünü eklemek ve ürünler ile araçlar arasında çoka-çok ilişkiyi sağlayan `product_compatibility` ara tablosunu kurup migrasyonu çalıştırmak.
+2. 12 adet popüler ve gerçekçi ürünü (Michelin, Varta, Castrol vb.) veritabanına tohumlayacak bir script (`seed_db.py`) hazırlamak.
+3. Giriş formu ve sorgu mantığını e-posta VEYA kullanıcı adı parametrelerine göre (`OR` sorgusuyla) çalışacak hale getirmek.
+4. Admin ürün yönetim arayüzü oluşturup, Bootstrap modal ile düzenleme (edit) formunu ve backend rotasını hazırlamak.
+5. Fiyat alanları için anlık yazarken binlik ayıracı (virgül) ekleyen ve kategoriye göre dinamik ipucu veren JavaScript kodunu yazmak.
+
+### Plan'da Sorguladıklarım
+- Ürünler sayfasında verilerin hala statik kalmasına karşı çıktım, tüm ürünlerin veritabanından dinamik çekilmesini ve seçilen araca göre anında elenmesini istedim.
+- Fiyat giriş alanının standart `number` olmasının tasarımı bozduğunu söyledim. `text` yapıp JS ile maskeleyerek binlik ayıracı eklenmesinin çok daha şık ve profesyonel olacağını belirttim.
+- Giriş yaparken her seferinde uzun uzun e-posta yazmanın zahmetli olduğunu söyledim, sadece `admin` yazarak da hızlıca panele girebilmemiz için form yapısının esnetilmesini talep ettim.
+
+### Üretilen Kodda Düzelttiklerim
+- JavaScript ile yazarken fiyat alanlarında imlecin (cursor) sürekli kelimenin en sonuna zıplama hatasını düzelttim. Kursör konumunu koruyan gelişmiş JS mantığını yazdırdım.
+- Tohumlama scriptinde (`seed_db.py`) ürünler silinirken veritabanında `UNIQUE constraint` (IntegrityError) hatası alıyordum. Ürünleri silmeden önce ara tablonun (`product_compatibility`) silinmesi gerektiğini fark edip ilgili kodu ekledim.
+
+### Karşılaştığım Hatalar ve Çözümler
+- Hata: VS Code linter'ı SQLAlchemy 2.0 modellerinde argümanları algılayamadığı için projede "Unexpected keyword argument" linter uyarıları (Problems 39) dolmuştu.
+- Çözüm: Modellere (`User`, `Vehicle` vb.) açıkça `__init__(self, **kwargs)` constructor metodunu ekleyerek VS Code linter uyarılarını tamamen temizledim.
+- Hata: `products.html` select kutusunun `onchange` tetikleyicisinde Jinja tırnakları ile HTML tırnakları çakışıp JavaScript hatası veriyordu.
+- Çözüm: `onchange` içine Jinja `url_for` gömmek yerine doğrudan `/products` statik yolunu yazarak linter çakışmasını giderdim.
+
+### Bu Oturumdan Öğrendiğim
+- Veritabanı yönetiminde çoka-çok (Many-to-Many) tabloların SQLAlchemy ile Flask'ta nasıl kurulacağını ve ara tabloların veri bütünlüğü açısından silinme anındaki davranışlarını öğrendim.
+- SQLite migrasyonlarında tabloya default değeri olmayan yeni bir kolon eklerken (`server_default`) migrasyon dosyalarında yapılması gereken güvenli düzenlemeleri kavradım.
+- Arayüzlerde dinamik form maskelemenin ve anlık ipucu gösteriminin kullanıcı deneyimine kattığı büyük konforu gördüm.
+
+### Sonraki Oturum İçin Notlar
+E-ticaret ve ürün vitrini arayüzümüz başarıyla dinamikleştirildi. Sonraki oturumda sisteme sepetim kısmının eklenmesi, sepete ürün ekleme/çıkarma fonksiyonlarının yazılması ve sepet toplamının dinamik hesaplanması üzerinde çalışılacak.

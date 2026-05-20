@@ -10,7 +10,8 @@ import os
 @main.route('/')
 @main.route('/index')
 def index():
-    return render_template('main/index.html', title='Ana Sayfa')
+    popular_products = Product.query.limit(4).all()
+    return render_template('main/index.html', title='Ana Sayfa', popular_products=popular_products)
 
 @main.route('/garage')
 @login_required
@@ -59,10 +60,9 @@ def garage_add():
             owner=current_user
         )
         
-        # Eklenen aracı mevcut tüm ürünlere uyumlu olarak bağla
-        all_products = Product.query.all()
-        for p in all_products:
-            vehicle.compatible_products.append(p)
+        # Uyumlu ürünleri otomatik olarak bağla
+        from app.cars_data import link_vehicle_products
+        link_vehicle_products(vehicle)
 
         db.session.add(vehicle)
         db.session.commit()
@@ -140,11 +140,23 @@ def update_dates(id):
 @main.route('/products')
 def products():
     selected_vehicle_id = request.args.get('vehicle_id', type=int)
-    
-    # Kullanıcının araçlarını yükle
+    manual_brand  = request.args.get('brand', '')
+    manual_series = request.args.get('series', '')
+    manual_motor  = request.args.get('motor', '')
+
     user_vehicles = []
     if current_user.is_authenticated:
         user_vehicles = current_user.vehicles
+
+    from app.cars_data import CAR_DATA
+    import json
+
+    manual_specs = None
+    if manual_brand and manual_series and manual_motor:
+        try:
+            manual_specs = CAR_DATA[manual_brand][manual_series][manual_motor]
+        except KeyError:
+            manual_specs = None
 
     if selected_vehicle_id:
         vehicle = db.session.get(Vehicle, selected_vehicle_id)
@@ -152,17 +164,47 @@ def products():
             products_list = vehicle.compatible_products
         else:
             products_list = Product.query.all()
+    elif manual_specs:
+        oil_spec     = manual_specs.get('oil', '')
+        battery_spec = manual_specs.get('battery', '')
+        tire_spec    = manual_specs.get('tire', '')
+        all_p = Product.query.all()
+        products_list = []
+        for p in all_p:
+            if p.category == 'Motor Yagi' and oil_spec and oil_spec.lower() in p.specs.lower():
+                products_list.append(p)
+            elif p.category == 'Motor Yağı' and oil_spec and oil_spec.lower() in p.specs.lower():
+                products_list.append(p)
+            elif p.category == 'Akü' and battery_spec:
+                v_num = ''.join(filter(str.isdigit, battery_spec))
+                p_num = ''.join(filter(str.isdigit, p.specs))
+                if v_num and p_num and v_num in p_num:
+                    products_list.append(p)
+            elif p.category == 'Lastik' and tire_spec and tire_spec.lower() in p.specs.lower():
+                products_list.append(p)
+            elif p.category == 'Jant' and tire_spec:
+                for r in ['13','14','15','16','17','18']:
+                    if f'R{r}' in tire_spec and r in p.specs:
+                        products_list.append(p)
+                        break
+        if not products_list:
+            products_list = Product.query.all()
     else:
         products_list = Product.query.all()
 
-    # Kategorilere ayır
-    tires = [p for p in products_list if p.category == 'Lastik']
-    oils = [p for p in products_list if p.category == 'Motor Yağı']
+    tires     = [p for p in products_list if p.category == 'Lastik']
+    oils      = [p for p in products_list if p.category == 'Motor Yağı']
     batteries = [p for p in products_list if p.category == 'Akü']
+    wheels    = [p for p in products_list if p.category == 'Jant']
+
+    car_data_json = json.dumps(CAR_DATA, ensure_ascii=False)
 
     return render_template('main/products.html', title='Ürünler',
-                           tires=tires, oils=oils, batteries=batteries,
-                           user_vehicles=user_vehicles, selected_vehicle_id=selected_vehicle_id)
+                           tires=tires, oils=oils, batteries=batteries, wheels=wheels,
+                           user_vehicles=user_vehicles, selected_vehicle_id=selected_vehicle_id,
+                           car_data_json=car_data_json,
+                           manual_brand=manual_brand, manual_series=manual_series,
+                           manual_motor=manual_motor, manual_specs=manual_specs)
 
 @main.route('/about')
 def about():
@@ -208,14 +250,17 @@ def admin_products():
             image_url=filename
         )
 
-        # Yeni ürünü mevcut tüm araçlara uyumlu olarak bağla
-        all_vehicles = Vehicle.query.all()
-        for v in all_vehicles:
-            product.compatible_vehicles.append(v)
-
         db.session.add(product)
         db.session.commit()
-        flash('Yeni ürün başarıyla eklendi ve tüm araçlara tanımlandı!', 'success')
+
+        # Uyumlu araçları dinamik olarak bağla
+        from app.cars_data import link_vehicle_products
+        all_vehicles = Vehicle.query.all()
+        for v in all_vehicles:
+            link_vehicle_products(v)
+        db.session.commit()
+
+        flash('Yeni ürün başarıyla eklendi ve uyumlu araçlara tanımlandı!', 'success')
         return redirect(url_for('main.admin_products'))
 
     products_list = Product.query.all()
@@ -252,9 +297,15 @@ def admin_products_edit(id):
             upload_folder = os.path.join(current_app.root_path, 'static', 'products')
             os.makedirs(upload_folder, exist_ok=True)
             file.save(os.path.join(upload_folder, filename))
-            product.image_url = filename
-
         db.session.commit()
+
+        # Uyumlu araçları dinamik olarak güncelle
+        from app.cars_data import link_vehicle_products
+        all_vehicles = Vehicle.query.all()
+        for v in all_vehicles:
+            link_vehicle_products(v)
+        db.session.commit()
+
         flash('Ürün başarıyla güncellendi!', 'success')
 
     return redirect(url_for('main.admin_products'))
@@ -274,4 +325,65 @@ def product_delete(id):
     else:
         flash('Ürün bulunamadı.', 'danger')
     return redirect(url_for('main.admin_products'))
+
+
+@main.context_processor
+def inject_notifications():
+    notifications = []
+    if current_user.is_authenticated:
+        from datetime import date
+        today = date.today()
+        for vehicle in current_user.vehicles:
+            # Muayene Tarihi Kontrolü (Son 30 gün kala veya geçmişse)
+            if vehicle.inspection_date:
+                days_left = (vehicle.inspection_date - today).days
+                if 0 <= days_left <= 30:
+                    notifications.append({
+                        'type': 'inspection',
+                        'vehicle_id': vehicle.id,
+                        'brand': vehicle.brand,
+                        'model_name': vehicle.model_name,
+                        'plate': vehicle.plate or '',
+                        'days_left': days_left,
+                        'title': f'{vehicle.brand} Muayene Yaklaşıyor!',
+                        'text': f'Muayene tarihine {days_left} gün kaldı ({vehicle.inspection_date.strftime("%d.%m.%Y")}).'
+                    })
+                elif days_left < 0:
+                    notifications.append({
+                        'type': 'inspection_overdue',
+                        'vehicle_id': vehicle.id,
+                        'brand': vehicle.brand,
+                        'model_name': vehicle.model_name,
+                        'plate': vehicle.plate or '',
+                        'days_left': days_left,
+                        'title': f'{vehicle.brand} Muayenesi Gecikmiş!',
+                        'text': f'Muayene tarihi {-days_left} gün önceydi ({vehicle.inspection_date.strftime("%d.%m.%Y")})!'
+                    })
+            
+            # Bakım Tarihi Kontrolü (Son 30 gün kala veya geçmişse)
+            if vehicle.maintenance_date:
+                days_left = (vehicle.maintenance_date - today).days
+                if 0 <= days_left <= 30:
+                    notifications.append({
+                        'type': 'maintenance',
+                        'vehicle_id': vehicle.id,
+                        'brand': vehicle.brand,
+                        'model_name': vehicle.model_name,
+                        'plate': vehicle.plate or '',
+                        'days_left': days_left,
+                        'title': f'{vehicle.brand} Bakım Zamanı Yaklaşıyor!',
+                        'text': f'Bakım zamanına {days_left} gün kaldı ({vehicle.maintenance_date.strftime("%d.%m.%Y")}).'
+                    })
+                elif days_left < 0:
+                    notifications.append({
+                        'type': 'maintenance_overdue',
+                        'vehicle_id': vehicle.id,
+                        'brand': vehicle.brand,
+                        'model_name': vehicle.model_name,
+                        'plate': vehicle.plate or '',
+                        'days_left': days_left,
+                        'title': f'{vehicle.brand} Bakımı Gecikmiş!',
+                        'text': f'Periyodik bakım tarihi {-days_left} gün önceydi ({vehicle.maintenance_date.strftime("%d.%m.%Y")})!'
+                    })
+    return dict(user_notifications=notifications)
 

@@ -37,21 +37,68 @@
         box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
     .vehicle-search-left {
-        background: #f8f9fa; /* Turuncu yerine kırık beyaz */
-        color: #121418; /* Metin rengi koyu */
+        background: linear-gradient(135deg, #16181f, #1e222b);
+        border-right: 1px solid var(--border-color);
+        color: white;
         padding: 1.5rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        min-width: 250px;
+        min-width: 200px;
         text-align: center;
     }
     .vehicle-search-right {
-        padding: 1.5rem;
+        padding: 1.5rem 2rem;
         flex-grow: 1;
         background-color: #121418;
+        position: relative;
     }
+
+    /* Sekme Butonları */
+    .vsb-tabs {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 12px;
+    }
+    .vsb-tab-btn {
+        background: transparent;
+        border: 1px solid #2a2d35;
+        color: #a0a5b1;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-align: left;
+        width: 100%;
+    }
+    .vsb-tab-btn:hover {
+        border-color: var(--accent-color);
+        color: white;
+    }
+    .vsb-tab-btn.active {
+        background: var(--accent-color);
+        border-color: var(--accent-color);
+        color: white;
+        box-shadow: 0 4px 12px rgba(123,61,235,0.35);
+    }
+
+    /* Panel Geçişleri */
+    .vsb-panel {
+        display: none;
+        animation: fadeInPanel 0.3s ease;
+    }
+    .vsb-panel.active {
+        display: block;
+    }
+    @keyframes fadeInPanel {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
     .form-select-search {
         background-color: var(--surface-color);
         border: 1px solid var(--border-color);
@@ -61,6 +108,14 @@
     .form-select-search:focus {
         border-color: var(--accent-color);
         box-shadow: 0 0 0 0.25rem rgba(123,61,235,0.25);
+    }
+    .form-select-search:disabled {
+        background-color: #16181f !important;
+        color: #6c757d !important;
+        border-color: var(--border-color) !important;
+        opacity: 0.7 !important;
+        cursor: not-allowed;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236c757d' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
     }
 
     /* Ürün Kartları */
@@ -169,6 +224,73 @@
     .mega-footer ul li a:hover {
         color: var(--accent-color);
     }
+
+    /* Yatay Ürün Slider Sistemi */
+    .product-slider-container {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        padding: 10px 0;
+    }
+    .product-slider-row {
+        display: flex;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        gap: 20px;
+        padding-bottom: 15px;
+    }
+    .product-slider-row::-webkit-scrollbar {
+        display: none;
+    }
+    .product-slider-row {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .product-slider-item {
+        flex: 0 0 calc(25% - 15px);
+        min-width: 0;
+        transition: transform 0.3s ease;
+    }
+    @media (max-width: 1200px) {
+        .product-slider-item {
+            flex: 0 0 calc(33.333% - 14px);
+        }
+    }
+    @media (max-width: 768px) {
+        .product-slider-item {
+            flex: 0 0 calc(50% - 10px);
+        }
+    }
+    @media (max-width: 576px) {
+        .product-slider-item {
+            flex: 0 0 100%;
+        }
+    }
+
+    /* Slider Ok Butonları */
+    .slider-controls {
+        display: flex;
+        gap: 8px;
+    }
+    .slider-arrow {
+        border-radius: 50% !important;
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--surface-color) !important;
+        border: 1px solid var(--border-color) !important;
+        color: #a0a5b1 !important;
+        transition: all 0.3s ease;
+        padding: 0 !important;
+    }
+    .slider-arrow:hover {
+        background-color: var(--accent-color) !important;
+        border-color: var(--accent-color) !important;
+        color: white !important;
+        box-shadow: 0 0 12px rgba(123, 61, 235, 0.5);
+    }
 </style>
 
 <!-- Kategoriler Alt Menü -->
@@ -200,132 +322,411 @@
 
 <div class="container">
     
-    <!-- Araca Göre Arama Kutusu -->
-    <div class="vehicle-search-box">
+    <!-- Araca Göre Arama Kutusu — 2 Sekmeli -->
+    <div class="vehicle-search-box" id="vehicleSearchBox">
+
+        <!-- Sol İkon Paneli -->
         <div class="vehicle-search-left">
-            <i class="fa-solid fa-car-side mb-2" style="font-size: 2.5rem; color: var(--accent-color);"></i>
-            <h4 class="fw-bold mb-1">ARACA GÖRE ARA</h4>
-            <small style="opacity: 0.8;">Tüm uyumlu parçaları listele</small>
-        </div>
-        <div class="vehicle-search-right">
-            <h5 class="text-white mb-3">Araca Göre <span style="color: #a0a5b1;">Ürün Ara</span></h5>
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <select class="form-select form-select-search" onchange="if(this.value != 'default') { window.location.href='/products?vehicle_id=' + this.value; } else { window.location.href='/products'; }">
-                        <option value="default">Garajımdan Araç Seç</option>
-                        {% if current_user.is_authenticated %}
-                            {% for v in current_user.vehicles %}
-                                <option value="{{ v.id }}" {% if selected_vehicle_id == v.id %}selected{% endif %}>{{ v.brand }} {{ v.model_name }}</option>
-                            {% endfor %}
-                        {% endif %}
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select form-select-search" disabled>
-                        <option selected>Model Seçiniz</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select form-select-search" disabled>
-                        <option selected>Yıl Seçiniz</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select form-select-search" disabled>
-                        <option selected>Donanım Seçiniz</option>
-                    </select>
-                </div>
+            <i class="fa-solid fa-car-side mb-2" style="font-size:2.5rem;color:var(--accent-color);"></i>
+            <h4 class="fw-bold mb-1">ARACA GÖRE</h4>
+            <small style="opacity:.8;">Uyumlu parçaları filtrele</small>
+
+            <!-- Sekme Butonları -->
+            <div class="vsb-tabs mt-3 w-100">
+                <button class="vsb-tab-btn {% if not manual_specs %}active{% endif %}" id="tab-garage" onclick="switchVsbTab('garage')">
+                    <i class="fa-solid fa-garage-car me-1"></i> Garajım
+                </button>
+                <button class="vsb-tab-btn {% if manual_specs %}active{% endif %}" id="tab-manual" onclick="switchVsbTab('manual')">
+                    <i class="fa-solid fa-magnifying-glass-plus me-1"></i> Araç Gir
+                </button>
             </div>
-            {% if selected_vehicle_id %}
-                <p class="mt-3 mb-0 text-success" style="font-size: 0.9rem;"><i class="fa-solid fa-circle-check me-2"></i>Araç Filtresi Aktif. Sadece uyumlu ürünler gösteriliyor.</p>
-            {% else %}
-                <p class="mt-3 mb-0" style="color: #a0a5b1; font-size: 0.85rem; font-style: italic;">Sonuçlar, seçimlerinizden sonra otomatik olarak gösterilecektir.</p>
-            {% endif %}
+        </div>
+
+        <!-- Sağ İçerik Paneli -->
+        <div class="vehicle-search-right">
+
+            <!-- SEKME 1: Garajdan Seç -->
+            <div id="vsb-panel-garage" class="vsb-panel {% if not manual_specs %}active{% endif %}">
+                <h5 class="text-white mb-1">Garajımdan <span style="color:#a0a5b1;">Araç Seç</span></h5>
+                <p class="mb-3" style="color:#a0a5b1;font-size:.85rem;">Eklediğin araçlara özel uyumlu ürünleri listele</p>
+                {% if current_user.is_authenticated and current_user.vehicles %}
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-8">
+                            <label class="form-label text-white-50" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;">Araç Seçin</label>
+                            <select id="garageSelect" class="form-select form-select-search" onchange="applyGarageFilter()">
+                                <option value="">— Garajımdan Araç Seç —</option>
+                                {% for v in current_user.vehicles %}
+                                    <option value="{{ v.id }}" {% if selected_vehicle_id == v.id %}selected{% endif %}>
+                                        {{ v.brand }} {{ v.model_name }}{% if v.plate %} ({{ v.plate }}){% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn w-100" style="background:var(--accent-color);color:white;font-weight:700;border-radius:8px;" onclick="applyGarageFilter()">
+                                <i class="fa-solid fa-magnifying-glass me-2"></i>Filtrele
+                            </button>
+                        </div>
+                    </div>
+                    {% if selected_vehicle_id %}
+                        <p class="mt-3 mb-0 text-success" style="font-size:.9rem;">
+                            <i class="fa-solid fa-circle-check me-2"></i>Araç filtresi aktif — yalnızca uyumlu ürünler gösteriliyor.
+                        </p>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fa-solid fa-garage" style="font-size:3rem;color:#2a2d35;"></i>
+                        <p class="mt-2 mb-3" style="color:#a0a5b1;">Garajınızda henüz araç yok.</p>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('main.garage_add') }}" class="btn" style="background:var(--accent-color);color:white;border-radius:8px;">
+                                <i class="fa-solid fa-plus me-2"></i>Araç Ekle
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('auth.login') }}" class="btn" style="background:var(--accent-color);color:white;border-radius:8px;">
+                                <i class="fa-solid fa-right-to-bracket me-2"></i>Giriş Yap
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- SEKME 2: Elle Araç Gir -->
+            <div id="vsb-panel-manual" class="vsb-panel {% if manual_specs %}active{% endif %}">
+                <h5 class="text-white mb-1">Başka Araç <span style="color:#a0a5b1;">Seç</span></h5>
+                <p class="mb-3" style="color:#a0a5b1;font-size:.85rem;">Aracını listede bul, uyumlu ürünleri görüntüle</p>
+                <form method="get" action="{{ url_for('main.products') }}" id="manualVehicleForm">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label text-white-50" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;">Marka</label>
+                            <select id="m-brand" name="brand" class="form-select form-select-search" onchange="loadSeries()">
+                                <option value="">— Marka —</option>
+                                <!-- CAR_DATA markalarını JS ile dolduracağız -->
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-white-50" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;">Seri / Model</label>
+                            <select id="m-series" name="series" class="form-select form-select-search" onchange="loadMotors()" disabled>
+                                <option value="">— Önce Marka —</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-white-50" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;">Motor / Yakıt</label>
+                            <select id="m-motor" name="motor" class="form-select form-select-search" disabled>
+                                <option value="">— Önce Seri —</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn w-100" style="background:var(--accent-color);color:white;font-weight:700;border-radius:8px;" id="manualSearchBtn" disabled>
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                {% if manual_specs %}
+                    <div class="mt-3 p-3 rounded" style="background:#1a1d25;border:1px solid #2a2d35;">
+                        <div class="row g-2 text-center">
+                            <div class="col-4">
+                                <small class="text-white-50 d-block">Motor Yağı</small>
+                                <span class="fw-bold" style="color:#f59e0b;">{{ manual_specs.oil }}</span>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-white-50 d-block">Akü</small>
+                                <span class="fw-bold" style="color:#10b981;">{{ manual_specs.battery }}</span>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-white-50 d-block">Lastik Ebadı</small>
+                                <span class="fw-bold" style="color:#60a5fa;">{{ manual_specs.tire }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-2 mb-0 text-success" style="font-size:.9rem;">
+                        <i class="fa-solid fa-circle-check me-2"></i>{{ manual_brand }} {{ manual_series }} — {{ manual_motor }} uyumlu ürünler listeleniyor.
+                        <a href="{{ url_for('main.products') }}" class="ms-2 text-white-50" style="font-size:.8rem;">[Temizle]</a>
+                    </p>
+                {% endif %}
+            </div>
+
         </div>
     </div>
 
+
     <!-- Motor Yağları -->
-    <h3 class="section-title" id="oils">Popüler Motor Yağları</h3>
-    <div class="row g-4 mb-5">
-        {% for p in oils %}
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="product-card">
-                <div class="product-img-wrapper">
-                    {% if p.image_url %}
-                        <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
-                    {% else %}
-                        <i class="fa-solid fa-oil-can" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
-                    {% endif %}
-                </div>
-                <div class="product-spec">{{ p.specs }}</div>
-                <h5 class="product-title">{{ p.name }}</h5>
-                <p class="product-subtitle">{{ p.description or 'Tam Sentetik Motor Yağı' }}</p>
-                <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
-                <button class="btn btn-outline-success mt-3 w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</button>
-            </div>
+    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 border-secondary">
+        <h3 class="section-title mb-0" id="oils" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">Motor Yağları</h3>
+        <div class="slider-controls">
+            <button class="btn slider-arrow prev" data-slider="oils-slider">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button class="btn slider-arrow next" data-slider="oils-slider">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
         </div>
-        {% else %}
-        <div class="col-12 text-center text-white-50 py-4">Bu kategoriye uygun motor yağı bulunamadı.</div>
-        {% endfor %}
+    </div>
+    <div class="product-slider-container mb-5" id="oils-slider">
+        <div class="product-slider-row">
+            {% for p in oils %}
+            <div class="product-slider-item">
+                <div class="product-card">
+                    <div class="product-img-wrapper">
+                        {% if p.image_url %}
+                            <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
+                        {% else %}
+                            <i class="fa-solid fa-oil-can" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
+                        {% endif %}
+                    </div>
+                    <div class="product-spec">{{ p.specs }}</div>
+                    <h5 class="product-title">{{ p.name }}</h5>
+                    <p class="product-subtitle">{{ p.description or 'Tam Sentetik Motor Yağı' }}</p>
+                    <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
+                    <button class="btn btn-outline-success mt-3 w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</button>
+                </div>
+            </div>
+            {% else %}
+            <div class="w-100 text-center text-white-50 py-4">Bu kategoriye uygun motor yağı bulunamadı.</div>
+            {% endfor %}
+        </div>
     </div>
 
     <!-- Lastikler -->
-    <h3 class="section-title" id="tires">Otomobil & SUV Lastikleri</h3>
-    <div class="row g-4 mb-5">
-        {% for p in tires %}
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="product-card">
-                <div class="product-img-wrapper">
-                    {% if p.image_url %}
-                        <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
-                    {% else %}
-                        <i class="fa-solid fa-ring" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
-                    {% endif %}
-                </div>
-                <div class="product-spec">{{ p.specs }}</div>
-                <h5 class="product-title">{{ p.name }}</h5>
-                <p class="product-subtitle">{{ p.description or 'Yüksek Performanslı Lastik' }}</p>
-                <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
-                <button class="btn btn-outline-success mt-3 w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</button>
-            </div>
+    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 border-secondary">
+        <h3 class="section-title mb-0" id="tires" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">Otomobil & SUV Lastikleri</h3>
+        <div class="slider-controls">
+            <button class="btn slider-arrow prev" data-slider="tires-slider">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button class="btn slider-arrow next" data-slider="tires-slider">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
         </div>
-        {% else %}
-        <div class="col-12 text-center text-white-50 py-4">Bu kategoriye uygun lastik bulunamadı.</div>
-        {% endfor %}
+    </div>
+    <div class="product-slider-container mb-5" id="tires-slider">
+        <div class="product-slider-row">
+            {% for p in tires %}
+            <div class="product-slider-item">
+                <div class="product-card">
+                    <div class="product-img-wrapper">
+                        {% if p.image_url %}
+                            <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
+                        {% else %}
+                            <i class="fa-solid fa-ring" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
+                        {% endif %}
+                    </div>
+                    <div class="product-spec">{{ p.specs }}</div>
+                    <h5 class="product-title">{{ p.name }}</h5>
+                    <p class="product-subtitle">{{ p.description or 'Yüksek Performanslı Lastik' }}</p>
+                    <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
+                    <button class="btn btn-outline-success mt-3 w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</button>
+                </div>
+            </div>
+            {% else %}
+            <div class="w-100 text-center text-white-50 py-4">Bu kategoriye uygun lastik bulunamadı.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Jantlar -->
+    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 border-secondary">
+        <h3 class="section-title mb-0" id="wheels" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">Performans Jant Modelleri</h3>
+        <div class="slider-controls">
+            <button class="btn slider-arrow prev" data-slider="wheels-slider">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button class="btn slider-arrow next" data-slider="wheels-slider">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+    <div class="product-slider-container mb-5" id="wheels-slider">
+        <div class="product-slider-row">
+            {% for p in wheels %}
+            <div class="product-slider-item">
+                <div class="product-card">
+                    <div class="product-img-wrapper">
+                        {% if p.image_url %}
+                            <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
+                        {% else %}
+                            <i class="fa-solid fa-compact-disc" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
+                        {% endif %}
+                    </div>
+                    <div class="product-spec">{{ p.specs }}</div>
+                    <h5 class="product-title">{{ p.name }}</h5>
+                    <p class="product-subtitle">{{ p.description or 'Alaşım Alüminyum Jant' }}</p>
+                    <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
+                    <button class="btn btn-outline-success mt-3 w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</button>
+                </div>
+            </div>
+            {% else %}
+            <div class="w-100 text-center text-white-50 py-4">Bu kategoriye uygun jant bulunamadı.</div>
+            {% endfor %}
+        </div>
     </div>
 
     <!-- Aküler -->
-    <h3 class="section-title" id="batteries">Uzun Ömürlü Aküler</h3>
-    <div class="row g-4 mb-3">
-        {% for p in batteries %}
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="product-card">
-                <div class="product-img-wrapper">
-                    {% if p.image_url %}
-                        <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
-                    {% else %}
-                        <i class="fa-solid fa-car-battery" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
-                    {% endif %}
-                </div>
-                <div class="product-spec">{{ p.specs }}</div>
-                <h5 class="product-title">{{ p.name }}</h5>
-                <p class="product-subtitle">{{ p.description or 'Yüksek Amperli Akü' }}</p>
-                <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
-                <button class="btn btn-outline-success mt-3 w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</button>
-            </div>
+    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 border-secondary">
+        <h3 class="section-title mb-0" id="batteries" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">Aküler</h3>
+        <div class="slider-controls">
+            <button class="btn slider-arrow prev" data-slider="batteries-slider">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button class="btn slider-arrow next" data-slider="batteries-slider">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
         </div>
-        {% else %}
-        <div class="col-12 text-center text-white-50 py-4">Bu kategoriye uygun akü bulunamadı.</div>
-        {% endfor %}
+    </div>
+    <div class="product-slider-container mb-5" id="batteries-slider">
+        <div class="product-slider-row">
+            {% for p in batteries %}
+            <div class="product-slider-item">
+                <div class="product-card">
+                    <div class="product-img-wrapper">
+                        {% if p.image_url %}
+                            <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
+                        {% else %}
+                            <i class="fa-solid fa-car-battery" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
+                        {% endif %}
+                    </div>
+                    <div class="product-spec">{{ p.specs }}</div>
+                    <h5 class="product-title">{{ p.name }}</h5>
+                    <p class="product-subtitle">{{ p.description or 'Yüksek Amperli Akü' }}</p>
+                    <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
+                    <button class="btn btn-outline-success mt-3 w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</button>
+                </div>
+            </div>
+            {% else %}
+            <div class="w-100 text-center text-white-50 py-4">Bu kategoriye uygun akü bulunamadı.</div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 
 <script>
-    // Alt menü navigasyonu aktifleştirme (Basit Scroll Davranışı)
+    // =============================================
+    // CAR DATA (Python'dan aktarılan JSON)
+    // =============================================
+    const CAR_DATA = {{ car_data_json | safe }};
+
+    // =============================================
+    // SEKME GEÇİŞİ
+    // =============================================
+    function switchVsbTab(tab) {
+        document.querySelectorAll('.vsb-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.vsb-tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('vsb-panel-' + tab).classList.add('active');
+        document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    // =============================================
+    // GARAJ FİLTRESİ
+    // =============================================
+    function applyGarageFilter() {
+        const sel = document.getElementById('garageSelect');
+        const val = sel ? sel.value : '';
+        if (val) {
+            window.location.href = '/products?vehicle_id=' + val;
+        } else {
+            window.location.href = '/products';
+        }
+    }
+
+    // =============================================
+    // CASCADE DROPDOWN (Elle Araç Girişi)
+    // =============================================
+
+    // Marka seçeneğini doldur
+    (function initBrands() {
+        const brandSel = document.getElementById('m-brand');
+        if (!brandSel) return;
+        Object.keys(CAR_DATA).sort().forEach(brand => {
+            const opt = document.createElement('option');
+            opt.value = brand;
+            opt.textContent = brand;
+            // Sayfa yüklenirken önceki değeri seç
+            if (brand === '{{ manual_brand }}') opt.selected = true;
+            brandSel.appendChild(opt);
+        });
+        // Eğer önceden marka seçilmişse seri listesini doldur
+        if ('{{ manual_brand }}') loadSeries(true);
+    })();
+
+    function loadSeries(restoreValues = false) {
+        const brand = document.getElementById('m-brand').value;
+        const seriesSel = document.getElementById('m-series');
+        const motorSel  = document.getElementById('m-motor');
+        const searchBtn = document.getElementById('manualSearchBtn');
+
+        seriesSel.innerHTML = '<option value="">— Seri Seçin —</option>';
+        motorSel.innerHTML  = '<option value="">— Önce Seri —</option>';
+        motorSel.disabled   = true;
+        searchBtn.disabled  = true;
+
+        if (!brand || !CAR_DATA[brand]) {
+            seriesSel.disabled = true;
+            return;
+        }
+        seriesSel.disabled = false;
+        Object.keys(CAR_DATA[brand]).sort().forEach(series => {
+            const opt = document.createElement('option');
+            opt.value = series;
+            opt.textContent = series;
+            if (restoreValues && series === '{{ manual_series }}') opt.selected = true;
+            seriesSel.appendChild(opt);
+        });
+        if (restoreValues && '{{ manual_series }}') loadMotors(true);
+    }
+
+    function loadMotors(restoreValues = false) {
+        const brand  = document.getElementById('m-brand').value;
+        const series = document.getElementById('m-series').value;
+        const motorSel  = document.getElementById('m-motor');
+        const searchBtn = document.getElementById('manualSearchBtn');
+
+        motorSel.innerHTML = '<option value="">— Motor Seçin —</option>';
+        searchBtn.disabled = true;
+
+        if (!brand || !series || !CAR_DATA[brand] || !CAR_DATA[brand][series]) {
+            motorSel.disabled = true;
+            return;
+        }
+        motorSel.disabled = false;
+        Object.keys(CAR_DATA[brand][series]).forEach(motor => {
+            const opt = document.createElement('option');
+            opt.value = motor;
+            opt.textContent = motor;
+            if (restoreValues && motor === '{{ manual_motor }}') opt.selected = true;
+            motorSel.appendChild(opt);
+        });
+        motorSel.onchange = () => {
+            searchBtn.disabled = !motorSel.value;
+        };
+        if (restoreValues && '{{ manual_motor }}') searchBtn.disabled = false;
+    }
+
+    // =============================================
+    // ALT MENÜ NAVİGASYONU
+    // =============================================
     document.querySelectorAll('.product-nav .nav-link').forEach(link => {
         link.addEventListener('click', function(e) {
             document.querySelectorAll('.product-nav .nav-link').forEach(l => l.classList.remove('active'));
             this.classList.add('active');
+        });
+    });
+
+    // =============================================
+    // SLIDER BUTON KONTROLÜ
+    // =============================================
+    document.querySelectorAll('.slider-arrow').forEach(arrow => {
+        arrow.addEventListener('click', function(e) {
+            e.preventDefault();
+            const sliderId = this.getAttribute('data-slider');
+            const slider = document.getElementById(sliderId).querySelector('.product-slider-row');
+            const cardItem = slider.querySelector('.product-slider-item');
+            if (!cardItem) return;
+            const cardWidth = cardItem.offsetWidth + 20;
+            if (this.classList.contains('prev')) {
+                slider.scrollLeft -= cardWidth * 2;
+            } else {
+                slider.scrollLeft += cardWidth * 2;
+            }
         });
     });
 </script>

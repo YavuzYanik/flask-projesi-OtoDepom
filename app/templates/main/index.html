@@ -33,9 +33,94 @@
     </div>
     <div class="col-md-4 mb-4">
         <div class="h-100 p-4 border rounded-3 shadow-sm transition" style="background-color: var(--surface-color); border-color: var(--border-color) !important;">
-            <h2 class="h5 fw-bold text-white mb-3"><i class="fa-solid fa-truck-monster me-2" style="color: var(--accent-color);"></i> Doğru Lastik Ebatları</h2>
+            <h2 class="h5 fw-bold text-white mb-3"><i class="fa-solid fa-circle-nodes me-2" style="color: var(--accent-color);"></i> Doğru Lastik Ebatları</h2>
             <p style="color: var(--text-muted);">Jant çapınıza ve mevsim ihtiyacınıza uygun kaliteli lastikler.</p>
         </div>
     </div>
 </div>
+
+<!-- Öne Çıkan Popüler Ürünler -->
+<div class="row mt-5 pt-4">
+    <div class="col-12">
+        <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-2 border-secondary">
+            <h3 class="fw-bold text-white mb-0" style="font-size: 1.4rem;"><i class="fa-solid fa-fire text-danger me-2"></i>Öne Çıkan Popüler Ürünler</h3>
+            <a href="{{ url_for('main.products') }}" class="btn btn-purple btn-sm px-3">Tümünü Gör <i class="fa-solid fa-arrow-right ms-1"></i></a>
+        </div>
+    </div>
+    
+    {% for p in popular_products %}
+    <div class="col-6 col-md-4 col-lg-3 mb-4">
+        <div class="product-card">
+            <div class="product-img-wrapper">
+                {% if p.image_url %}
+                    <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
+                {% else %}
+                    <i class="fa-solid fa-box" style="font-size: 4rem; color: #a0a5b1; opacity: 0.3;"></i>
+                {% endif %}
+            </div>
+            <div class="product-spec text-white fw-bold mb-1">{{ p.specs }}</div>
+            <h5 class="product-title" style="font-size: 0.95rem;">{{ p.name }}</h5>
+            <p class="product-subtitle mb-2" style="font-size: 0.8rem;">{{ p.category }}</p>
+            <div class="product-price" style="font-size: 1.15rem;">{{ "{:,.2f}".format(p.price) }} TL</div>
+            <a href="{{ url_for('main.products') }}" class="btn btn-outline-purple mt-3 w-100 btn-sm"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .product-card {
+        background-color: var(--surface-color);
+        border: 1px solid var(--border-color) !important;
+        border-radius: 12px;
+        padding: 1.25rem;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        border-color: var(--accent-color) !important;
+    }
+    .product-img-wrapper {
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+    .product-img-wrapper img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+        filter: drop-shadow(0 5px 10px rgba(0,0,0,0.4));
+    }
+    .product-title {
+        color: white;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    .product-subtitle {
+        color: #a0a5b1;
+        font-size: 0.85rem;
+    }
+    .product-price {
+        color: #10b981;
+        font-weight: 800;
+        margin-top: auto;
+    }
+    .btn-outline-purple {
+        color: var(--accent-color);
+        border-color: var(--accent-color);
+        transition: 0.3s;
+    }
+    .btn-outline-purple:hover {
+        background-color: var(--accent-color);
+        color: white;
+        box-shadow: 0 0 10px rgba(123, 61, 235, 0.4);
+    }
+</style>
 {% endblock %}
