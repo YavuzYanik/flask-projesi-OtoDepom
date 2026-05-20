@@ -280,10 +280,19 @@
     });
 
     function nextStep() {
+        const plateInput = document.querySelector('input[name="plate"]');
+        
         if(!brandSelect.value || !seriesSelect.value || !modelSelect.value || !yearSelect.value || !fuelSelect.value || !transSelect.value || !powerSelect.value) {
             alert("Lütfen tüm araç özelliklerini doldurunuz.");
             return;
         }
+        
+        if(!plateInput.value.trim() || !plateInput.checkValidity()) {
+            alert("Lütfen geçerli bir plaka giriniz (Örn: 34 ABC 123).");
+            plateInput.focus();
+            return;
+        }
+        
         document.getElementById('step1').classList.remove('active');
         document.getElementById('step2').classList.add('active');
     }

@@ -99,3 +99,36 @@ def vehicle_delete(id):
     db.session.commit()
     flash('Araç başarıyla garajınızdan silindi.', 'success')
     return redirect(url_for('main.garage'))
+
+@main.route('/garage/vehicle/<int:id>/update_dates', methods=['POST'])
+@login_required
+def update_dates(id):
+    vehicle = db.session.get(Vehicle, id)
+    if not vehicle or vehicle.owner != current_user:
+        flash('Bu işlem için yetkiniz yok!', 'danger')
+        return redirect(url_for('main.garage'))
+
+    inspection_date_str = request.form.get('inspection_date')
+    maintenance_date_str = request.form.get('maintenance_date')
+
+    try:
+        if inspection_date_str:
+            vehicle.inspection_date = datetime.strptime(inspection_date_str, '%Y-%m-%d').date()
+        else:
+            vehicle.inspection_date = None
+
+        if maintenance_date_str:
+            vehicle.maintenance_date = datetime.strptime(maintenance_date_str, '%Y-%m-%d').date()
+        else:
+            vehicle.maintenance_date = None
+            
+        db.session.commit()
+        flash('Araç tarihleri başarıyla güncellendi.', 'success')
+    except ValueError:
+        flash('Geçersiz tarih formatı!', 'danger')
+
+    return redirect(url_for('main.garage_detail', id=vehicle.id))
+
+@main.route('/products')
+def products():
+    return render_template('main/products.html', title='Ürünler')
