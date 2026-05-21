@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .category-header {
+        background: linear-gradient(135deg, var(--surface-color) 0%, rgba(123, 61, 235, 0.1) 100%);
+        border-radius: 15px;
+        padding: 3rem 2rem;
+        margin-bottom: 3rem;
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+    .category-icon {
+        font-size: 4rem;
+        color: var(--accent-color);
+        background: var(--bg-color);
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    .category-title-text {
+        color: var(--text-color);
+        font-weight: 800;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .category-subtitle {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+    }
+    
+    .product-card {
+        background: var(--surface-color);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s ease;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        border-color: var(--accent-color);
+    }
+    .product-img-wrapper {
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        background: #fff;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+    .product-img-wrapper img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    .product-spec {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+        background: var(--bg-color);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        display: inline-block;
+        border: 1px solid var(--border-color);
+    }
+    .product-title {
+        color: var(--text-color);
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    .product-price {
+        color: #10b981;
+        font-weight: 800;
+        font-size: 1.25rem;
+        margin-top: auto;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="container py-5">
+    <!-- Kategori Başlığı -->
+    <div class="category-header">
+        <div class="category-icon">
+            {% if category_slug == 'lastikler' %}
+                <i class="fa-solid fa-ring"></i>
+            {% elif category_slug == 'motor-yaglari' %}
+                <i class="fa-solid fa-oil-can"></i>
+            {% elif category_slug == 'akuler' %}
+                <i class="fa-solid fa-car-battery"></i>
+            {% else %}
+                <i class="fa-solid fa-box"></i>
+            {% endif %}
+        </div>
+        <div>
+            <h1 class="category-title-text">{{ title }}</h1>
+            <p class="category-subtitle">Aradığınız en iyi <strong>{{ title.lower() }}</strong> markaları OtoDepom güvencesiyle burada.</p>
+        </div>
+    </div>
+
+    <!-- Filtreler ve Navigasyon -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
+        <a href="{{ url_for('main.products') }}" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-2"></i>Tüm Ürünlere Dön</a>
+        <div class="text-muted">
+            Toplam <strong class="text-white">{{ products.total }}</strong> ürün bulundu.
+        </div>
+    </div>
+
+    <!-- Ürün Grid -->
+    <div class="row g-4 mb-5">
+        {% for p in products.items %}
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="product-card">
+                <a href="{{ url_for('main.product_detail', id=p.id) }}" class="text-decoration-none d-flex flex-column flex-grow-1">
+                    <div class="product-img-wrapper">
+                        {% if p.image_url %}
+                            {% if p.image_url.startswith('http') %}
+                                <img src="{{ p.image_url }}" alt="{{ p.name }}">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
+                            {% endif %}
+                        {% else %}
+                            <i class="fa-solid {% if category_slug == 'lastikler' %}fa-ring{% elif category_slug == 'motor-yaglari' %}fa-oil-can{% elif category_slug == 'akuler' %}fa-car-battery{% else %}fa-box{% endif %}" style="font-size: 4rem; color: #a0a5b1; opacity: 0.3;"></i>
+                        {% endif %}
+                    </div>
+                    <div class="product-spec">{{ p.specs }}</div>
+                    <h5 class="product-title">{{ p.name }}</h5>
+                    <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
+                </a>
+                <div class="mt-2">
+                    <a href="{{ url_for('main.product_detail', id=p.id) }}" class="btn btn-outline-success w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <i class="fa-solid fa-box-open mb-3" style="font-size: 4rem; color: var(--text-muted); opacity: 0.5;"></i>
+            <h4 style="color: var(--text-muted);">Bu kategoride henüz ürün bulunmuyor.</h4>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Sayfalama -->
+    {% if products.pages > 1 %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not products.has_prev %}disabled{% endif %}">
+                <a class="page-link bg-dark text-white border-secondary" href="{% if products.has_prev %}{{ url_for('main.category_products', category_name=category_slug, page=products.prev_num) }}{% else %}#{% endif %}">Önceki</a>
+            </li>
+            
+            {% for page_num in products.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    <li class="page-item {% if products.page == page_num %}active{% endif %}">
+                        <a class="page-link {% if products.page == page_num %}bg-purple border-purple{% else %}bg-dark text-white border-secondary{% endif %}" href="{{ url_for('main.category_products', category_name=category_slug, page=page_num) }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link bg-dark text-white-50 border-secondary">...</span></li>
+                {% endif %}
+            {% endfor %}
+
+            <li class="page-item {% if not products.has_next %}disabled{% endif %}">
+                <a class="page-link bg-dark text-white border-secondary" href="{% if products.has_next %}{{ url_for('main.category_products', category_name=category_slug, page=products.next_num) }}{% else %}#{% endif %}">Sonraki</a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -14,7 +14,7 @@
         box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
     .admin-title {
-        color: white;
+        color: var(--text-color);
         font-weight: 700;
         font-size: 1.75rem;
         border-bottom: 2px solid var(--accent-color);
@@ -23,29 +23,30 @@
         margin-bottom: 2rem;
     }
     .form-control-admin, .form-select-admin {
-        background-color: #121418;
+        background-color: var(--bg-color);
         border: 1px solid var(--border-color);
-        color: white;
+        color: var(--text-color);
         border-radius: 8px;
     }
     .form-control-admin:focus, .form-select-admin:focus {
-        background-color: #121418;
+        background-color: var(--bg-color);
         border-color: var(--accent-color);
-        color: white;
+        color: var(--text-color);
         box-shadow: 0 0 0 0.25rem rgba(123,61,235,0.25);
     }
     .admin-table {
-        color: white;
+        color: var(--text-color);
     }
     .admin-table th {
-        background-color: #121418 !important;
+        background-color: var(--bg-color) !important;
         border-color: var(--border-color);
-        color: #a0a5b1;
+        color: var(--text-muted);
     }
     .admin-table td {
         background-color: transparent !important;
         border-color: var(--border-color);
         vertical-align: middle;
+        color: var(--text-color);
     }
     .product-thumbnail {
         width: 60px;
@@ -66,29 +67,33 @@
                 <h3 class="admin-title">Yeni Ürün Ekle</h3>
                 <form action="{{ url_for('main.admin_products') }}" method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
-                        <label for="name" class="form-label text-white-50">Ürün Adı</label>
+                        <label for="name" class="form-label" style="color: var(--text-muted);">Ürün Adı</label>
                         <input type="text" class="form-control form-control-admin" id="name" name="name" required placeholder="Örn: Michelin Primacy 4+">
                     </div>
                     <div class="mb-3">
-                        <label for="category" class="form-label text-white-50">Kategori</label>
+                        <label for="category" class="form-label" style="color: var(--text-muted);">Kategori</label>
                         <select class="form-select form-select-admin" id="category" name="category" required>
                             <option value="" disabled selected>Kategori Seçiniz</option>
                             <option value="Lastik">Lastik</option>
                             <option value="Akü">Akü</option>
                             <option value="Motor Yağı">Motor Yağı</option>
-                            <option value="Jant">Jant</option>
+                            <option value="Diğer">Diğer Ürünler</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="specs" class="form-label text-white-50">Ebat / Teknik Değer</label>
+                        <label for="specs" class="form-label" style="color: var(--text-muted);">Ebat / Teknik Değer</label>
                         <input type="text" class="form-control form-control-admin" id="specs" name="specs" required placeholder="Kategori seçiniz...">
                     </div>
                     <div class="mb-3">
-                        <label for="price" class="form-label text-white-50">Fiyat (TL)</label>
+                        <label for="price" class="form-label" style="color: var(--text-muted);">Fiyat (TL)</label>
                         <input type="text" class="form-control form-control-admin price-formatter-input" id="price" name="price" required placeholder="0.00">
                     </div>
                     <div class="mb-3">
-                        <label for="image" class="form-label text-white-50">Ürün Görseli</label>
+                        <label for="stock" class="form-label" style="color: var(--text-muted);">Stok Miktarı</label>
+                        <input type="number" class="form-control form-control-admin" id="stock" name="stock" required placeholder="0" min="0" value="10">
+                    </div>
+                    <div class="mb-3">
+                        <label for="image" class="form-label" style="color: var(--text-muted);">Ürün Görseli</label>
                         <input type="file" class="form-control form-control-admin" id="image" name="image" accept="image/*" required>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fa-solid fa-plus me-2"></i>Ürünü Kaydet</button>
@@ -108,12 +113,13 @@
                                 <th>Ürün Adı</th>
                                 <th>Kategori</th>
                                 <th>Değer/Ebat</th>
+                                <th>Stok</th>
                                 <th>Fiyat</th>
                                 <th class="text-end">İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for p in products %}
+                            {% for p in products.items %}
                             <tr>
                                 <td>
                                     {% if p.image_url %}
@@ -129,6 +135,7 @@
                                     <span class="badge bg-secondary">{{ p.category }}</span>
                                 </td>
                                 <td>{{ p.specs }}</td>
+                                <td><span class="badge {% if p.stock > 0 %}bg-success{% else %}bg-danger{% endif %}">{{ p.stock }} Adet</span></td>
                                 <td class="text-success fw-bold">{{ "{:,.2f}".format(p.price) }} TL</td>
                                 <td class="text-end">
                                     <button type="button" class="btn btn-warning btn-sm me-1" data-bs-toggle="modal" data-bs-target="#editModal{{ p.id }}">
@@ -145,36 +152,40 @@
                             <!-- Düzenleme Modalı -->
                             <div class="modal fade" id="editModal{{ p.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ p.id }}" aria-hidden="true">
                               <div class="modal-dialog">
-                                <div class="modal-content text-white" style="background-color: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px;">
+                                <div class="modal-content" style="background-color: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 12px;">
                                   <div class="modal-header border-bottom-0">
                                     <h5 class="modal-title fw-bold" id="editModalLabel{{ p.id }}">Ürün Düzenle: {{ p.name }}</h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                                    <button type="button" class="btn-close btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
                                   </div>
                                   <form action="{{ url_for('main.admin_products_edit', id=p.id) }}" method="POST" enctype="multipart/form-data">
                                     <div class="modal-body">
                                         <div class="mb-3">
-                                            <label class="form-label text-white-50">Ürün Adı</label>
+                                            <label class="form-label" style="color: var(--text-muted);">Ürün Adı</label>
                                             <input type="text" class="form-control form-control-admin" name="name" value="{{ p.name }}" required>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label text-white-50">Kategori</label>
+                                            <label class="form-label" style="color: var(--text-muted);">Kategori</label>
                                             <select class="form-select form-select-admin category-select-guide" name="category" data-specs-id="editSpecs{{ p.id }}" required>
                                                 <option value="Lastik" {% if p.category == 'Lastik' %}selected{% endif %}>Lastik</option>
                                                 <option value="Akü" {% if p.category == 'Akü' %}selected{% endif %}>Akü</option>
                                                 <option value="Motor Yağı" {% if p.category == 'Motor Yağı' %}selected{% endif %}>Motor Yağı</option>
-                                                <option value="Jant" {% if p.category == 'Jant' %}selected{% endif %}>Jant</option>
+                                                <option value="Diğer" {% if p.category == 'Diğer' %}selected{% endif %}>Diğer Ürünler</option>
                                             </select>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label text-white-50">Ebat / Teknik Değer</label>
+                                            <label class="form-label" style="color: var(--text-muted);">Ebat / Teknik Değer</label>
                                             <input type="text" class="form-control form-control-admin" id="editSpecs{{ p.id }}" name="specs" value="{{ p.specs }}" required>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label text-white-50">Fiyat (TL)</label>
+                                            <label class="form-label" style="color: var(--text-muted);">Fiyat (TL)</label>
                                             <input type="text" class="form-control form-control-admin price-formatter-input" name="price" value="{{ '{:,.2f}'.format(p.price) }}" required>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label text-white-50">Ürün Görseli (Boş bırakılırsa mevcut görsel kalır)</label>
+                                            <label class="form-label" style="color: var(--text-muted);">Stok Miktarı</label>
+                                            <input type="number" class="form-control form-control-admin" name="stock" value="{{ p.stock }}" required min="0">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label" style="color: var(--text-muted);">Ürün Görseli (Boş bırakılırsa mevcut görsel kalır)</label>
                                             <input type="file" class="form-control form-control-admin" name="image" accept="image/*">
                                         </div>
                                     </div>
@@ -194,6 +205,33 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination -->
+                {% if products.pages > 1 %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item {% if not products.has_prev %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('main.admin_products', page=products.prev_num) if products.has_prev else '#' }}" style="background: var(--surface-color); border-color: var(--border-color); color: var(--accent-color);">Önceki</a>
+                        </li>
+                        
+                        {% for page_num in products.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                            {% if page_num %}
+                                <li class="page-item {% if products.page == page_num %}active{% endif %}">
+                                    <a class="page-link" href="{{ url_for('main.admin_products', page=page_num) }}" style="background: {% if products.page == page_num %}var(--accent-color){% else %}var(--surface-color){% endif %}; border-color: var(--border-color); color: white;">{{ page_num }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link" style="background: var(--surface-color); border-color: var(--border-color); color: #a0a5b1;">...</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <li class="page-item {% if not products.has_next %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('main.admin_products', page=products.next_num) if products.has_next else '#' }}" style="background: var(--surface-color); border-color: var(--border-color); color: var(--accent-color);">Sonraki</a>
+                        </li>
+                    </ul>
+                </nav>
+                {% endif %}
             </div>
         </div>
     </div>

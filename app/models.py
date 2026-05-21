@@ -18,6 +18,8 @@ class User(UserMixin, db.Model):
     # İlişkiler
     vehicles: Mapped[List["Vehicle"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
     orders: Mapped[List["Order"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    order_groups: Mapped[List["OrderGroup"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    cart_items: Mapped[List["CartItem"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -91,10 +93,12 @@ class Product(db.Model):
     category: Mapped[str] = mapped_column(String(64), index=True)
     specs: Mapped[Optional[str]] = mapped_column(String(256))
     price: Mapped[float] = mapped_column(Float)
+    stock: Mapped[int] = mapped_column(Integer, default=10, server_default='10')
     image_url: Mapped[Optional[str]] = mapped_column(String(256))
 
     # İlişkiler
     orders: Mapped[List["Order"]] = relationship(back_populates="product")
+    cart_items: Mapped[List["CartItem"]] = relationship(back_populates="product", cascade="all, delete-orphan")
     compatible_vehicles: Mapped[List["Vehicle"]] = relationship(
         secondary=product_compatibility,
         back_populates="compatible_products"
@@ -106,23 +110,60 @@ class Product(db.Model):
     def __repr__(self):
         return f'<Product {self.name}>'
 
+class OrderGroup(db.Model):
+    __tablename__ = 'order_groups'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    order_date: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    status: Mapped[str] = mapped_column(String(32), default="Beklemede")
+    address: Mapped[str] = mapped_column(String(256))
+    city: Mapped[str] = mapped_column(String(64))
+    phone: Mapped[str] = mapped_column(String(32))
+    total_price: Mapped[float] = mapped_column(Float)
+
+    user: Mapped["User"] = relationship(back_populates="order_groups")
+    orders: Mapped[List["Order"]] = relationship(back_populates="order_group", cascade="all, delete-orphan")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
 class Order(db.Model):
     __tablename__ = 'orders'
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     product_id: Mapped[int] = mapped_column(ForeignKey('products.id'))
+    order_group_id: Mapped[Optional[int]] = mapped_column(ForeignKey('order_groups.id'))
     quantity: Mapped[int] = mapped_column(Integer, default=1)
+    price_at_purchase: Mapped[Optional[float]] = mapped_column(Float)
     order_date: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     # İlişkiler
     user: Mapped["User"] = relationship(back_populates="orders")
     product: Mapped["Product"] = relationship(back_populates="orders")
+    order_group: Mapped[Optional["OrderGroup"]] = relationship(back_populates="orders")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def __repr__(self):
         return f'<Order {self.id} by User {self.user_id}>'
+
+class CartItem(db.Model):
+    __tablename__ = 'cart_items'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    product_id: Mapped[int] = mapped_column(ForeignKey('products.id'))
+    quantity: Mapped[int] = mapped_column(Integer, default=1)
+    added_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    user: Mapped["User"] = relationship(back_populates="cart_items")
+    product: Mapped["Product"] = relationship(back_populates="cart_items")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return f'<CartItem {self.id} for User {self.user_id}>'
 
 from app import login_manager
 

@@ -225,19 +225,21 @@
         color: var(--accent-color);
     }
 
-    /* Yatay Ürün Slider Sistemi */
     .product-slider-container {
         position: relative;
         overflow: hidden;
         width: 100%;
-        padding: 10px 0;
+        padding: 10px 15px;
+        margin-left: -15px;
+        width: calc(100% + 30px);
     }
     .product-slider-row {
         display: flex;
         overflow-x: auto;
         scroll-behavior: smooth;
         gap: 20px;
-        padding-bottom: 15px;
+        padding: 15px 15px 25px 15px;
+        margin: 0 -15px;
     }
     .product-slider-row::-webkit-scrollbar {
         display: none;
@@ -250,6 +252,11 @@
         flex: 0 0 calc(25% - 15px);
         min-width: 0;
         transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    .product-slider-item > .product-card {
+        flex: 1;
     }
     @media (max-width: 1200px) {
         .product-slider-item {
@@ -303,7 +310,7 @@
             <a class="nav-link" href="#tires" data-target="tires"><i class="fa-solid fa-ring me-2"></i>Lastik</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#wheels" data-target="wheels"><i class="fa-solid fa-compact-disc me-2"></i>Jant</a>
+            <a class="nav-link" href="#others" data-target="others"><i class="fa-solid fa-box me-2"></i>Diğer Ürünler</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="#batteries" data-target="batteries"><i class="fa-solid fa-car-battery me-2"></i>Akü</a>
@@ -452,7 +459,9 @@
 
     <!-- Motor Yağları -->
     <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 border-secondary">
-        <h3 class="section-title mb-0" id="oils" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">Motor Yağları</h3>
+        <h3 class="section-title mb-0" id="oils" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">
+            <a href="{{ url_for('main.category_products', category_name='motor-yaglari') }}" class="text-decoration-none" style="color: var(--text-color);">Motor Yağları <i class="fa-solid fa-arrow-right fs-6 text-purple ms-2"></i></a>
+        </h3>
         <div class="slider-controls">
             <button class="btn slider-arrow prev" data-slider="oils-slider">
                 <i class="fa-solid fa-chevron-left"></i>
@@ -467,18 +476,26 @@
             {% for p in oils %}
             <div class="product-slider-item">
                 <div class="product-card">
-                    <div class="product-img-wrapper">
-                        {% if p.image_url %}
-                            <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
-                        {% else %}
-                            <i class="fa-solid fa-oil-can" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
-                        {% endif %}
+                    <a href="{{ url_for('main.product_detail', id=p.id) }}" class="text-decoration-none d-block flex-grow-1">
+                        <div class="product-img-wrapper">
+                            {% if p.image_url %}
+                                {% if p.image_url.startswith('http') %}
+                                    <img src="{{ p.image_url }}" alt="{{ p.name }}">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
+                                {% endif %}
+                            {% else %}
+                                <i class="fa-solid fa-oil-can" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
+                            {% endif %}
+                        </div>
+                        <div class="product-spec">{{ p.specs }}</div>
+                        <h5 class="product-title">{{ p.name }}</h5>
+                        <p class="product-subtitle">Tam Sentetik Motor Yağı</p>
+                        <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
+                    </a>
+                    <div class="mt-3">
+                        <a href="{{ url_for('main.product_detail', id=p.id) }}" class="btn btn-outline-success w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</a>
                     </div>
-                    <div class="product-spec">{{ p.specs }}</div>
-                    <h5 class="product-title">{{ p.name }}</h5>
-                    <p class="product-subtitle">{{ p.description or 'Tam Sentetik Motor Yağı' }}</p>
-                    <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
-                    <button class="btn btn-outline-success mt-3 w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</button>
                 </div>
             </div>
             {% else %}
@@ -489,7 +506,9 @@
 
     <!-- Lastikler -->
     <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 border-secondary">
-        <h3 class="section-title mb-0" id="tires" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">Otomobil & SUV Lastikleri</h3>
+        <h3 class="section-title mb-0" id="tires" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">
+            <a href="{{ url_for('main.category_products', category_name='lastikler') }}" class="text-decoration-none" style="color: var(--text-color);">Otomobil & SUV Lastikleri <i class="fa-solid fa-arrow-right fs-6 text-purple ms-2"></i></a>
+        </h3>
         <div class="slider-controls">
             <button class="btn slider-arrow prev" data-slider="tires-slider">
                 <i class="fa-solid fa-chevron-left"></i>
@@ -504,18 +523,26 @@
             {% for p in tires %}
             <div class="product-slider-item">
                 <div class="product-card">
-                    <div class="product-img-wrapper">
-                        {% if p.image_url %}
-                            <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
-                        {% else %}
-                            <i class="fa-solid fa-ring" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
-                        {% endif %}
+                    <a href="{{ url_for('main.product_detail', id=p.id) }}" class="text-decoration-none d-block flex-grow-1">
+                        <div class="product-img-wrapper">
+                            {% if p.image_url %}
+                                {% if p.image_url.startswith('http') %}
+                                    <img src="{{ p.image_url }}" alt="{{ p.name }}">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
+                                {% endif %}
+                            {% else %}
+                                <i class="fa-solid fa-ring" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
+                            {% endif %}
+                        </div>
+                        <div class="product-spec">{{ p.specs }}</div>
+                        <h5 class="product-title">{{ p.name }}</h5>
+                        <p class="product-subtitle">Yüksek Performanslı Lastik</p>
+                        <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
+                    </a>
+                    <div class="mt-3">
+                        <a href="{{ url_for('main.product_detail', id=p.id) }}" class="btn btn-outline-success w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</a>
                     </div>
-                    <div class="product-spec">{{ p.specs }}</div>
-                    <h5 class="product-title">{{ p.name }}</h5>
-                    <p class="product-subtitle">{{ p.description or 'Yüksek Performanslı Lastik' }}</p>
-                    <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
-                    <button class="btn btn-outline-success mt-3 w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</button>
                 </div>
             </div>
             {% else %}
@@ -524,46 +551,57 @@
         </div>
     </div>
 
-    <!-- Jantlar -->
+    <!-- Diğer Ürünler -->
     <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 border-secondary">
-        <h3 class="section-title mb-0" id="wheels" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">Performans Jant Modelleri</h3>
+        <h3 class="section-title mb-0" id="others" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">
+            <a href="{{ url_for('main.category_products', category_name='diger-urunler') }}" class="text-decoration-none" style="color: var(--text-color);">Diğer Ürünler <i class="fa-solid fa-arrow-right fs-6 text-purple ms-2"></i></a>
+        </h3>
         <div class="slider-controls">
-            <button class="btn slider-arrow prev" data-slider="wheels-slider">
+            <button class="btn slider-arrow prev" data-slider="others-slider">
                 <i class="fa-solid fa-chevron-left"></i>
             </button>
-            <button class="btn slider-arrow next" data-slider="wheels-slider">
+            <button class="btn slider-arrow next" data-slider="others-slider">
                 <i class="fa-solid fa-chevron-right"></i>
             </button>
         </div>
     </div>
-    <div class="product-slider-container mb-5" id="wheels-slider">
+    <div class="product-slider-container mb-5" id="others-slider">
         <div class="product-slider-row">
-            {% for p in wheels %}
+            {% for p in others %}
             <div class="product-slider-item">
                 <div class="product-card">
-                    <div class="product-img-wrapper">
-                        {% if p.image_url %}
-                            <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
-                        {% else %}
-                            <i class="fa-solid fa-compact-disc" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
-                        {% endif %}
+                    <a href="{{ url_for('main.product_detail', id=p.id) }}" class="text-decoration-none d-block flex-grow-1">
+                        <div class="product-img-wrapper">
+                            {% if p.image_url %}
+                                {% if p.image_url.startswith('http') %}
+                                    <img src="{{ p.image_url }}" alt="{{ p.name }}">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
+                                {% endif %}
+                            {% else %}
+                                <i class="fa-solid fa-box" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
+                            {% endif %}
+                        </div>
+                        <div class="product-spec">{{ p.specs }}</div>
+                        <h5 class="product-title">{{ p.name }}</h5>
+                        <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
+                    </a>
+                    <div class="mt-3">
+                        <a href="{{ url_for('main.product_detail', id=p.id) }}" class="btn btn-outline-success w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</a>
                     </div>
-                    <div class="product-spec">{{ p.specs }}</div>
-                    <h5 class="product-title">{{ p.name }}</h5>
-                    <p class="product-subtitle">{{ p.description or 'Alaşım Alüminyum Jant' }}</p>
-                    <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
-                    <button class="btn btn-outline-success mt-3 w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</button>
                 </div>
             </div>
             {% else %}
-            <div class="w-100 text-center text-white-50 py-4">Bu kategoriye uygun jant bulunamadı.</div>
+            <div class="w-100 text-center text-white-50 py-4">Bu kategoriye uygun ürün bulunamadı.</div>
             {% endfor %}
         </div>
     </div>
 
     <!-- Aküler -->
     <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 border-secondary">
-        <h3 class="section-title mb-0" id="batteries" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">Aküler</h3>
+        <h3 class="section-title mb-0" id="batteries" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">
+            <a href="{{ url_for('main.category_products', category_name='akuler') }}" class="text-decoration-none" style="color: var(--text-color);">Aküler <i class="fa-solid fa-arrow-right fs-6 text-purple ms-2"></i></a>
+        </h3>
         <div class="slider-controls">
             <button class="btn slider-arrow prev" data-slider="batteries-slider">
                 <i class="fa-solid fa-chevron-left"></i>
@@ -578,18 +616,26 @@
             {% for p in batteries %}
             <div class="product-slider-item">
                 <div class="product-card">
-                    <div class="product-img-wrapper">
-                        {% if p.image_url %}
-                            <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
-                        {% else %}
-                            <i class="fa-solid fa-car-battery" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
-                        {% endif %}
+                    <a href="{{ url_for('main.product_detail', id=p.id) }}" class="text-decoration-none d-block flex-grow-1">
+                        <div class="product-img-wrapper">
+                            {% if p.image_url %}
+                                {% if p.image_url.startswith('http') %}
+                                    <img src="{{ p.image_url }}" alt="{{ p.name }}">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}">
+                                {% endif %}
+                            {% else %}
+                                <i class="fa-solid fa-car-battery" style="font-size: 5rem; color: #a0a5b1; opacity: 0.3;"></i>
+                            {% endif %}
+                        </div>
+                        <div class="product-spec">{{ p.specs }}</div>
+                        <h5 class="product-title">{{ p.name }}</h5>
+                        <p class="product-subtitle">Yüksek Amperli Akü</p>
+                        <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
+                    </a>
+                    <div class="mt-3">
+                        <a href="{{ url_for('main.product_detail', id=p.id) }}" class="btn btn-outline-success w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</a>
                     </div>
-                    <div class="product-spec">{{ p.specs }}</div>
-                    <h5 class="product-title">{{ p.name }}</h5>
-                    <p class="product-subtitle">{{ p.description or 'Yüksek Amperli Akü' }}</p>
-                    <div class="product-price">{{ "{:,.2f}".format(p.price) }} TL</div>
-                    <button class="btn btn-outline-success mt-3 w-100"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</button>
                 </div>
             </div>
             {% else %}
@@ -754,7 +800,7 @@
                         <li><a href="#">Motor Yağı</a></li>
                         <li><a href="#">5W-30 Motor Yağları</a></li>
                         <li><a href="#">10W-40 Motor Yağları</a></li>
-                        <li><a href="#">Jant</a></li>
+                        <li><a href="#">Diğer Ürünler</a></li>
                         <li><a href="#">Filtre Setleri</a></li>
                         <li><a href="#">Oto Bakım Ürünleri</a></li>
                     </ul>

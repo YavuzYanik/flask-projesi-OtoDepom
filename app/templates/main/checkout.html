@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .checkout-card {
+        background-color: var(--surface-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+    }
+    .checkout-card .form-control, .checkout-card .form-select {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+    }
+    .checkout-card .form-control:focus, .checkout-card .form-select:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.25rem rgba(123, 61, 235, 0.25);
+    }
+    .checkout-card .form-label {
+        color: var(--text-muted);
+    }
+    .checkout-card h4, .checkout-card h5 {
+        color: var(--text-color);
+    }
+    .checkout-text-muted {
+        color: var(--text-muted);
+    }
+</style>
+<div class="container py-5">
+    <div class="d-flex align-items-center mb-4">
+        <i class="fa-solid fa-truck-fast text-purple me-3" style="font-size: 2rem;"></i>
+        <h2 class="fw-bold mb-0" style="color: var(--text-color);">Siparişi Tamamla</h2>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sol: Form -->
+        <div class="col-lg-8">
+            <div class="card p-4 checkout-card">
+                <h4 class="mb-4 border-bottom border-secondary pb-3">Teslimat Bilgileri</h4>
+                
+                <form action="{{ url_for('main.checkout') }}" method="POST">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Ad Soyad</label>
+                            <input type="text" class="form-control" value="{{ current_user.username }}" readonly disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">E-Posta</label>
+                            <input type="email" class="form-control" value="{{ current_user.email }}" readonly disabled>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Telefon Numarası <span class="text-danger">*</span></label>
+                            <input type="tel" name="phone" class="form-control" placeholder="05XX XXX XX XX" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Şehir <span class="text-danger">*</span></label>
+                            <select name="city" class="form-select" required>
+                                <option value="">Şehir Seçin</option>
+                                <option value="Ankara">Ankara</option>
+                                <option value="Çorum">Çorum</option>
+                            </select>
+                            <small class="checkout-text-muted mt-1 d-block">Yakında diğer şehirler de eklenecektir.</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Teslimat / Kargo Adresi <span class="text-danger">*</span></label>
+                        <textarea name="address" class="form-control" rows="3" placeholder="Mahalle, Sokak, No, Daire..." required></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="mb-3">Ödeme Yöntemi</h5>
+                        <div class="p-3 border rounded" style="border-color: var(--border-color) !important; background: var(--bg-color);">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment" id="payment1" checked>
+                                <label class="form-check-label" for="payment1">
+                                    <i class="fa-solid fa-building-columns text-purple me-2"></i> Hesaba Havale / EFT
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mt-2 p-3 rounded" style="background-color: rgba(123, 61, 235, 0.1); border: 1px dashed var(--accent-color);">
+                            <small class="d-block" style="color: var(--text-color);">
+                                <i class="fa-solid fa-circle-info text-purple me-1"></i> Lütfen siparişi onayladıktan sonra toplam tutarı aşağıdaki hesaba gönderiniz:
+                            </small>
+                            <div class="mt-2 fw-bold font-monospace" style="color: var(--text-color); font-size: 0.95rem;">
+                                TR98 0000 1111 2222 3333 4444 55
+                            </div>
+                            <small class="checkout-text-muted mt-1 d-block">Alıcı: OtoDepom A.Ş. (Açıklamaya adınızı ve soyadınızı yazınız)</small>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-lg w-100 fw-bold">
+                        Siparişi Onayla <i class="fa-solid fa-arrow-right ms-2"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sağ: Sipariş Özeti -->
+        <div class="col-lg-4">
+            <div class="card p-4 checkout-card sticky-top" style="top: 20px;">
+                <h5 class="mb-3 pb-2 border-bottom border-secondary">Sipariş Özeti</h5>
+                
+                <div class="cart-summary-items mb-3" style="max-height: 250px; overflow-y: auto;">
+                    {% for item in cart_items %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center">
+                            {% if item.product.image_url %}
+                                <img src="{{ url_for('static', filename='products/' + item.product.image_url) }}" alt="{{ item.product.name }}" style="width: 40px; height: 40px; object-fit: contain; background: #fff; border-radius: 5px; padding: 2px;" class="me-2 border border-secondary">
+                            {% else %}
+                                <div class="bg-secondary rounded me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fa-solid fa-box text-white"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <div style="font-size: 0.9rem; line-height: 1.2;">{{ item.product.name }}</div>
+                                <small class="checkout-text-muted">{{ item.quantity }} Adet</small>
+                            </div>
+                        </div>
+                        <div class="fw-bold" style="font-size: 0.9rem;">
+                            {{ "{:,.2f}".format(item.product.price * item.quantity) }} TL
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <hr class="border-secondary mb-3">
+
+                <div class="d-flex justify-content-between checkout-text-muted mb-2">
+                    <span>Ara Toplam</span>
+                    <span>{{ "{:,.2f}".format(total_price) }} TL</span>
+                </div>
+                <div class="d-flex justify-content-between checkout-text-muted mb-3">
+                    <span>Kargo</span>
+                    <span class="text-success">Ücretsiz</span>
+                </div>
+                <div class="d-flex justify-content-between border-top border-secondary pt-3" style="font-size: 1.2rem; font-weight: 800;">
+                    <span>Toplam</span>
+                    <span class="text-success">{{ "{:,.2f}".format(total_price) }} TL</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

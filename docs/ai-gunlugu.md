@@ -252,3 +252,64 @@ E-ticaret ve ürün listeleme altyapısının veritabanına taşınması. Yönet
 
 ### Sonraki Oturum İçin Notlar
 E-ticaret ve ürün vitrini arayüzümüz başarıyla dinamikleştirildi. Sonraki oturumda sisteme sepetim kısmının eklenmesi, sepete ürün ekleme/çıkarma fonksiyonlarının yazılması ve sepet toplamının dinamik hesaplanması üzerinde çalışılacak.
+
+## Oturum [7] — [21.05.2026] — [21:00 - 00:30]
+### Hedef
+E-ticaret sepet (cart) ve ödeme (checkout) sayfalarının tam fonksiyonel hale getirilmesi. Kategori bazlı ürün listeleme (sayfalama destekli) altyapısının kurulması. Ürün stok takibinin veritabanına eklenip sepet işlemleriyle entegre edilmesi. Kullanıcı deneyimini (UX) artırmak adına modern, Hepsiburada/Trendyol tarzı "yüzen" (toast) bildirim sisteminin tasarlanması.
+
+### Kullandığım Mod ve Model
+- Mod: Code / HIGH
+- Model: Gemini (Antigravity YARDIMCI)
+- Görünüm: Editor / Manager
+
+### Verdiğim Promptlar
+1. Ürünler sayfasında kategorilerin (Motor Yağları, Aküler vb.) ayrı sayfalara yönlendirmesini sağla ve bu kategorilere tıklandığında özel bir sayfaya atmasını ayarla.
+2. Sepet ekranında ürün adeti ekleyip çıkartma (+ / -) tuşu olsun, ürün ekranında adet belirleme imkanı olsun. Sepete eklenince "Şu kadar eklendi" yazsın.
+3. Her ürünün veritabanında bir stok miktarı olsun, sepete ürün eklerken ve sipariş tamamlarken bu stok miktarı kontrol edilsin, stok yetersizse uyarı versin. Sipariş onaylanınca stoktan düşülsün.
+4. "Flash kısmı çalışmıyor, HAYIR HEPSİBURADAKİ gibi solda ürün sepete eklendi yazısı çıksın" diyerek klasik uyarıların yerine sol altta beliren modern yüzen bildirimler (Toast) istedim.
+5. Profil sayfasındaki Garajım sekmesinin emojisi görünmüyor, bu hatayı düzelt.
+
+### Ajanın Önerdiği Plan
+1. `routes.py` içine `/category/<category_name>` isimli dinamik bir rota ekleyip `category.html` adında sayfalama (pagination) destekli yeni bir şablon hazırlamak.
+2. `Product` modeline `stock` (stok) sütununu eklemek ve `flask db migrate` ile veritabanını güncellemek.
+3. `product_detail.html` sayfasında sepete ekleme formunu adet (`quantity`) alacak şekilde güncellemek ve `cart.html` içine adet artırma/azaltma butonları ile rotalarını eklemek.
+4. `base.html` dosyasındaki flash mesaj yapısını Bootstrap 5 Toast bileşeni ile değiştirip sol alta (bottom-0 start-0) sabitlemek ve JS ile 4 saniye sonra otomatik kapanmasını sağlamak.
+5. Hatalı olan `fa-garage-car` ikonunu standart `fa-car` ile değiştirmek.
+
+### Plan'da Sorguladıklarım
+- Yönlendirme (redirect) işlemlerinin flash mesajlarını gizleme ihtimaline karşı çıktım. Ajan, yönlendirmeyi `request.referrer` yerine doğrudan rotaya (`url_for`) bağlayarak bu sorunu çözdü.
+- Toast bildirimlerinin ekranın neresinde duracağını tartıştık ve e-ticaret standartlarına uygun olarak sayfanın kenarına yüzen bir şekilde entegre edilmesinde karar kıldık.
+
+### Üretilen Kodda Düzelttiklerim
+- Sadece `add_to_cart` fonksiyonunda değil, sipariş onaylama (checkout) ekranında da ürün stoklarının doğru hesaplanıp satın alım anında stoktan düşülmesini sağladım.
+
+### Karşılaştığım Hatalar ve Çözümler
+- Hata: FontAwesome ücretsiz sürümünde `fa-garage-car` ikonu bulunmadığı için ikon kutusu boş görünüyordu.
+- Çözüm: İkon, ücretsiz pakette yer alan `fa-car` sınıfıyla değiştirildi.
+- Hata: Yönlendirme döngüleri yüzünden flash mesajları sayfaya ulaşmadan kayboluyordu.
+- Çözüm: Ajan, flash bildirimlerini Bootstrap Toasts formatına geçirip `z-index` ile en üste sabitledi.
+
+### Bu Oturumdan Öğrendiğim
+- Kategori bazlı URL tasarımını (`/category/<isim>`) ve Pagination (sayfalama) kullanımını öğrendim.
+- Kullanıcıyı sayfada tutarken şık bir deneyim sunan Toast (yüzen bildirim) mekanizmasının HTML ve JS tarafında nasıl senkronize çalıştığını kavradım.
+- Sepet (CartItem) ile Stok (Product) arasındaki veri tutarlılığını (consistency) sağlamanın ve sipariş tamamlandığında stoktan güvenli şekilde veri düşmenin önemini gördüm.
+
+### Sonraki Oturum İçin Notlar
+Tasarım ve sepet akışı büyük ölçüde tamamlandı. Bir sonraki aşamada siparişlerin yönetimi, admin onayı ve hata sayfalarıyla (404/500) projenin genel testlerini yaparak finale hazırlık yapılacak.
+
+10 Adımlık Geliştirme Yol Haritamız:
+
+Garaj (Araç Ekleme) Özelliği: Kullanıcının kendi aracını (Marka, Model, Yıl) sisteme kaydetmesi için form ve rota yazacağız. (→ 1 Commit)
+Profil Sayfası: Kullanıcının kayıtlı araçlarını ve e-postasını göreceği /profile arayüzü. (→ 1 Commit)
+
+Örnek Ürünler (Seed Data): Sistemi test edebilmek için veritabanına otomatik olarak birkaç Yağ, Akü ve Lastik ekleyen bir betik (script). (→ 1 Commit)
+
+
+
+Ürün Vitrini (Listeleme): Sistemdeki tüm yedek parçaların ana sayfada veya /products sayfasında modern kartlar halinde gösterilmesi. (→ 1 Commit)
+Sipariş (Order) Butonu: Ürünlerin altına "Sipariş Ver" butonu ekleyerek işlemi veritabanına (Order tablosuna) yazdırma. (→ 1 Commit)
+Sipariş Geçmişim: Kullanıcının kendi satın aldığı ürünleri listelediği sayfa. (→ 1 Commit)
+Özel Hata Sayfaları (404 & 500): Kullanıcı olmayan bir linke tıklarsa çirkin bir yazı yerine, şık bir "404 Sayfa Bulunamadı" ekranı tasarlayacağız. (→ 1 Commit)
+Birim Testleri (Unit Tests): Yönergedeki "Test yazmadan ilerler" uyarısından puan kırmamaları için pytest ile giriş ve kayıt olma işlemlerine temel test yazacağız. (→ 1 Commit)
+UI / Tasarım İyileştirmeleri: Bootstrap 5 ile sitemize biraz daha renk, logo ve modern bir hava katacağız. (→ 1 Commit)
+Final: Raporun Doldurulması: Şu an baktığınız docs/rapor.md dosyasını ve AI günlüğünüzü birlikte tamamlayıp son haliyle GitHub'a yollayacağız. (→ 1 Commit)
