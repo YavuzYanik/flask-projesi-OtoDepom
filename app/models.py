@@ -6,6 +6,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import db
 
+# Kullanıcıların favori ürünleri için çoka-çok ilişki tablosu
+user_favorites = db.Table('user_favorites',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('product_id', db.Integer, db.ForeignKey('products.id', ondelete='CASCADE'), primary_key=True)
+)
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -20,6 +26,7 @@ class User(UserMixin, db.Model):
     orders: Mapped[List["Order"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     order_groups: Mapped[List["OrderGroup"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     cart_items: Mapped[List["CartItem"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    favorites: Mapped[List["Product"]] = relationship(secondary=user_favorites, back_populates="favorited_by")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -98,6 +105,7 @@ class Product(db.Model):
 
     # İlişkiler
     orders: Mapped[List["Order"]] = relationship(back_populates="product")
+    favorited_by: Mapped[List["User"]] = relationship(secondary=user_favorites, back_populates="favorites")
     cart_items: Mapped[List["CartItem"]] = relationship(back_populates="product", cascade="all, delete-orphan")
     compatible_vehicles: Mapped[List["Vehicle"]] = relationship(
         secondary=product_compatibility,

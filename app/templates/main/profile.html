@@ -83,7 +83,7 @@
                 <div class="profile-avatar">
                     {{ current_user.username[0]|upper }}
                 </div>
-                <h4 class="text-white mb-1">{{ current_user.username }}</h4>
+                <h4 class="text-theme mb-1">{{ current_user.username }}</h4>
                 <p style="color: #a0a5b1; font-size: 0.9rem;">{{ current_user.email }}</p>
                 
                 <div class="profile-nav">
@@ -111,16 +111,16 @@
             <div class="profile-card">
                 <h4 class="profile-card-title">Kişisel Bilgiler</h4>
                 <div class="row mb-3">
-                    <div class="col-sm-3 text-white-50">Kullanıcı Adı</div>
-                    <div class="col-sm-9 text-white">{{ current_user.username }}</div>
+                    <div class="col-sm-3 text-theme-muted">Kullanıcı Adı</div>
+                    <div class="col-sm-9 text-theme">{{ current_user.username }}</div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-sm-3 text-white-50">E-Posta</div>
-                    <div class="col-sm-9 text-white">{{ current_user.email }}</div>
+                    <div class="col-sm-3 text-theme-muted">E-Posta</div>
+                    <div class="col-sm-9 text-theme">{{ current_user.email }}</div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-sm-3 text-white-50">Kayıt Tarihi</div>
-                    <div class="col-sm-9 text-white">{{ current_user.created_at.strftime('%d.%m.%Y') }}</div>
+                    <div class="col-sm-3 text-theme-muted">Kayıt Tarihi</div>
+                    <div class="col-sm-9 text-theme">{{ current_user.created_at.strftime('%d.%m.%Y') }}</div>
                 </div>
             </div>
 
@@ -133,15 +133,15 @@
                             <div class="vehicle-badge">
                                 <i class="fa-solid fa-car-side" style="font-size: 2rem; color: var(--accent-color);"></i>
                                 <div>
-                                    <div class="text-white fw-bold">{{ vehicle.brand }} {{ vehicle.model_name }}</div>
-                                    <div class="text-white-50" style="font-size: 0.85rem;">{{ vehicle.year }} {% if vehicle.plate %}| {{ vehicle.plate }}{% endif %}</div>
+                                    <div class="text-theme fw-bold">{{ vehicle.brand }} {{ vehicle.model_name }}</div>
+                                    <div class="text-theme-muted" style="font-size: 0.85rem;">{{ vehicle.year }} {% if vehicle.plate %}| {{ vehicle.plate }}{% endif %}</div>
                                 </div>
                             </div>
                         </div>
                     {% endfor %}
                     </div>
                 {% else %}
-                    <p class="text-white-50">Garajınızda henüz araç bulunmuyor.</p>
+                    <p class="text-theme-muted">Garajınızda henüz araç bulunmuyor.</p>
                     <a href="{{ url_for('main.garage_add') }}" class="btn btn-outline-primary btn-sm">Araç Ekle</a>
                 {% endif %}
             </div>
@@ -153,11 +153,11 @@
                         {% for group in current_user.order_groups|sort(attribute='order_date', reverse=true) %}
                         <div class="accordion-item bg-transparent border-secondary mb-3 border rounded">
                             <h2 class="accordion-header" id="heading{{ group.id }}">
-                                <button class="accordion-button collapsed bg-dark text-white rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ group.id }}" aria-expanded="false" aria-controls="collapse{{ group.id }}">
+                                <button class="accordion-button collapsed bg-surface text-theme rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ group.id }}" aria-expanded="false" aria-controls="collapse{{ group.id }}">
                                     <div class="d-flex justify-content-between w-100 align-items-center me-3">
                                         <div>
                                             <div class="fw-bold">#ORD-{{ group.id }}</div>
-                                            <small class="text-white-50">{{ group.order_date.strftime('%d.%m.%Y') }}</small>
+                                            <small class="text-theme-muted">{{ group.order_date.strftime('%d.%m.%Y') }}</small>
                                         </div>
                                         <div>
                                             <span class="badge {% if group.status == 'Beklemede' %}bg-warning text-dark{% elif group.status == 'Onaylandı' %}bg-primary{% elif group.status == 'Teslim Edildi' %}bg-success{% else %}bg-info text-dark{% endif %} me-3">{{ group.status }}</span>
@@ -167,12 +167,12 @@
                                 </button>
                             </h2>
                             <div id="collapse{{ group.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ group.id }}" data-bs-parent="#ordersAccordion">
-                                <div class="accordion-body text-white-50">
+                                <div class="accordion-body text-theme-muted">
                                     <ul class="list-unstyled mb-0">
                                         {% for order in group.orders %}
                                         <li class="mb-2 pb-2 border-bottom border-secondary d-flex justify-content-between">
                                             <span><i class="fa-solid fa-check text-success me-2"></i>{{ order.product.name }} <span class="badge bg-secondary ms-1">{{ order.quantity }}x</span></span>
-                                            <span class="text-white">{{ "{:,.2f}".format(order.price_at_purchase * order.quantity) }} TL</span>
+                                            <span class="text-theme">{{ "{:,.2f}".format(order.price_at_purchase * order.quantity) }} TL</span>
                                         </li>
                                         {% endfor %}
                                     </ul>
@@ -182,7 +182,7 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    <p class="text-white-50">Henüz hiç siparişiniz bulunmuyor.</p>
+                    <p class="text-theme-muted">Henüz hiç siparişiniz bulunmuyor.</p>
                     <a href="{{ url_for('main.products') }}" class="btn btn-outline-purple btn-sm">Alışverişe Başla</a>
                 {% endif %}
             </div>

@@ -47,14 +47,23 @@
             font-family: 'Inter', -apple-system, sans-serif;
             min-height: 100vh;
             transition: background-color 0.3s ease, color 0.3s ease;
+            padding-top: 80px; /* Navbar height için boşluk */
         }
         
-        /* Navbar Stili */
+        /* Navbar Stili (Akıllı Sticky) */
         .custom-navbar {
             background-color: var(--navbar-bg);
             border-bottom: 1px solid var(--border-color);
             padding: 12px 0;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1030;
+        }
+        .custom-navbar.nav-hidden {
+            transform: translateY(-100%);
         }
         .custom-navbar .navbar-brand {
             font-weight: 800;
@@ -70,16 +79,23 @@
             transition: 0.2s;
         }
         .custom-navbar .nav-link:hover { color: var(--text-color) !important; }
-        .btn-purple {
-            background-color: var(--accent-color);
-            color: white !important;
+        .btn-silver-ghost {
+            background: transparent;
+            color: var(--text-color) !important;
             font-weight: 600;
             border-radius: 8px;
             padding: 8px 20px;
-            border: none;
+            border: 1px solid var(--text-muted);
             transition: 0.3s;
         }
-        .btn-purple:hover { background-color: var(--accent-hover); color: white !important; }
+        .btn-silver-ghost:hover { 
+            background: rgba(255, 255, 255, 0.1); 
+            color: var(--text-color) !important; 
+            border-color: var(--text-color);
+        }
+        [data-theme="light"] .btn-silver-ghost:hover {
+            background: rgba(0, 0, 0, 0.05); 
+        }
         
         /* Alertler */
         .alert-success {
@@ -182,54 +198,26 @@
         [data-theme="light"] .btn-close {
             filter: var(--btn-close-filter) !important;
         }
-        [data-theme="light"] .search-box {
-            background-color: #ffffff !important;
-            border: 1px solid #d1d5db !important;
+
+
+        /* Tema Utility Sınıfları */
+        .text-theme { color: var(--text-color) !important; }
+        .text-theme-muted { color: var(--text-muted) !important; }
+        .bg-surface { background-color: var(--surface-color) !important; }
+        .bg-theme { background-color: var(--bg-color) !important; }
+        .border-theme { border-color: var(--border-color) !important; }
+        
+        .btn-outline-theme {
+            color: var(--text-color);
+            border-color: var(--border-color);
+            background-color: transparent;
         }
-        [data-theme="light"] .step-card {
-            background-color: #ffffff !important;
-            border: 1px solid #d1d5db !important;
-            color: #111827 !important;
+        .btn-outline-theme:hover {
+            background-color: var(--text-color);
+            color: var(--bg-color) !important;
         }
-        [data-theme="light"] .detail-card {
-            background-color: #ffffff !important;
-            border: 1px solid #d1d5db !important;
-            color: #111827 !important;
-        }
-        [data-theme="light"] .card {
-            background-color: #ffffff !important;
-            border: 1px solid #d1d5db !important;
-            color: #111827 !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
-        }
-        [data-theme="light"] .card-header, 
-        [data-theme="light"] .card-footer {
-            background-color: #f9fafb !important;
-            border-color: #e5e7eb !important;
-            color: #111827 !important;
-        }
-        [data-theme="light"] h1, 
-        [data-theme="light"] h2, 
-        [data-theme="light"] h3, 
-        [data-theme="light"] h4, 
-        [data-theme="light"] h5, 
-        [data-theme="light"] h6 {
-            color: #111827 !important;
-        }
-        [data-theme="light"] .text-white {
-            color: #111827 !important;
-        }
-        [data-theme="light"] .text-white-50 {
-            color: #4b5563 !important;
-        }
-        [data-theme="light"] .list-group-item {
-            background-color: #ffffff !important;
-            border-color: #e5e7eb !important;
-            color: #111827 !important;
-        }
-        [data-theme="light"] .border-secondary {
-            border-color: #e5e7eb !important;
-        }
+        
+
     </style>
 </head>
 <body>
@@ -240,12 +228,13 @@
                 <button id="themeToggleBtn" class="btn btn-sm btn-outline-light rounded-circle me-3" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); color: var(--text-muted); transition: 0.3s;" title="Temayı Değiştir">
                     <i id="themeToggleIcon" class="fa-solid fa-moon"></i>
                 </button>
-                <a class="navbar-brand" href="{{ url_for('main.index') }}">
-                    Oto<span>Depom</span>
+                <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}">
+                    <i class="fa-solid fa-car-side text-theme me-2" style="font-size: 1.4rem; filter: drop-shadow(0 2px 4px rgba(255,255,255,0.2));"></i>
+                    <span class="text-theme" style="letter-spacing: -0.5px;">Oto<span style="color: #c0c0c0; font-weight: 400;">Depom</span></span>
                 </a>
             </div>
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <i class="fa-solid fa-bars text-white"></i>
+                <i class="fa-solid fa-bars text-theme"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
@@ -255,8 +244,17 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.about') }}">Hakkımızda <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.products') }}">Ürünler <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="#" id="productsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Ürünler <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i>
+                        </a>
+                        <ul class="dropdown-menu shadow-lg" aria-labelledby="productsDropdown" style="background-color: var(--surface-color); border: 1px solid var(--border-color);">
+                            <li><a class="dropdown-item text-white" href="{{ url_for('main.products') }}">Tüm Ürünler</a></li>
+                            <li><hr class="dropdown-divider border-secondary"></li>
+                            <li><a class="dropdown-item text-white" href="{{ url_for('main.category_products', category_name='lastikler') }}"><i class="fa-solid fa-circle-nodes me-2 text-primary"></i>Avantajlı Lastikler</a></li>
+                            <li><a class="dropdown-item text-white" href="{{ url_for('main.category_products', category_name='akuler') }}"><i class="fa-solid fa-car-battery me-2 text-success"></i>Uzun Ömürlü Aküler</a></li>
+                            <li><a class="dropdown-item text-white" href="{{ url_for('main.category_products', category_name='motor-yaglari') }}"><i class="fa-solid fa-oil-can me-2 text-warning"></i>Katkılı Madeni Yağlar</a></li>
+                        </ul>
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto align-items-center">
@@ -264,7 +262,7 @@
                         <a class="nav-link position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-regular fa-bell" style="font-size: 1.1rem;"></i>
                             {% if user_notifications %}
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem; padding: 0.25em 0.5em; margin-top: 5px; margin-left: -5px;">
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-light text-dark shadow-sm" style="font-size: 0.65rem; padding: 0.25em 0.5em; margin-top: 5px; margin-left: -5px; border: 1px solid #ccc;">
                                     {{ user_notifications|length }}
                                 </span>
                             {% endif %}
@@ -272,7 +270,7 @@
                         <ul class="dropdown-menu dropdown-menu-end py-2" aria-labelledby="notificationDropdown" style="background-color: var(--surface-color); border: 1px solid var(--border-color); width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
                             <div class="px-3 py-2 border-bottom border-secondary d-flex justify-content-between align-items-center">
                                 <span class="fw-bold text-white" style="font-size: 0.9rem;">Bildirimler</span>
-                                <span class="badge bg-purple" style="font-size: 0.75rem;">{{ user_notifications|length }} Yeni</span>
+                                <span class="badge bg-light text-dark border" style="font-size: 0.75rem;">{{ user_notifications|length }} Yeni</span>
                             </div>
                             {% if user_notifications %}
                                 {% for n in user_notifications %}
@@ -308,7 +306,7 @@
                         </ul>
                     </li>
                     <li class="nav-item me-3">
-                        <a class="nav-link" href="#"><i class="fa-regular fa-star"></i></a>
+                        <a class="nav-link" href="{{ url_for('main.favorites') if current_user.is_authenticated else url_for('auth.login') }}"><i class="fa-regular fa-star"></i></a>
                     </li>
                     <li class="nav-item me-3">
                         <a class="nav-link" href="{{ url_for('main.view_cart') if current_user.is_authenticated else url_for('auth.login') }}"><i class="fa-solid fa-cart-shopping"></i> Sepetim</a>
@@ -319,7 +317,7 @@
 
                     {% if current_user.is_authenticated %}
                     <li class="nav-item dropdown">
-                        <button class="btn btn-purple dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <button class="btn btn-silver-ghost dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fa-regular fa-user me-1"></i> {{ current_user.username }}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" style="background-color: var(--surface-color); border: 1px solid var(--border-color);">
@@ -334,7 +332,7 @@
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link btn btn-purple text-white px-4" href="{{ url_for('auth.login') }}">Giriş Yap</a>
+                        <a class="nav-link btn btn-silver-ghost px-4" href="{{ url_for('auth.login') }}">Giriş Yap</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -413,6 +411,68 @@
                 localStorage.setItem('theme', theme);
                 updateIcon(theme);
             });
+        });
+
+        // Toggle Favorite Function
+        function toggleFavorite(productId, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            fetch(`/toggle_favorite/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data) {
+                    const icons = document.querySelectorAll(`.fav-icon-${productId}`);
+                    icons.forEach(icon => {
+                        if (data.status === 'added') {
+                            icon.classList.remove('fa-regular');
+                            icon.classList.add('fa-solid');
+                            icon.style.color = '#f59e0b';
+                        } else {
+                            icon.classList.remove('fa-solid');
+                            icon.classList.add('fa-regular');
+                            icon.style.color = '#4b5563';
+                        }
+                    });
+                }
+            })
+            .catch(error => console.error('Error toggling favorite:', error));
+        }
+
+        // Akıllı Sticky Navbar Mantığı
+        let lastScrollTop = 0;
+        const navbar = document.querySelector('.custom-navbar');
+        
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Eğer sayfa en üstteyse navbar'ı göster
+            if (scrollTop <= 50) {
+                navbar.classList.remove('nav-hidden');
+            } 
+            // Aşağı kaydırırken navbar'ı gizle
+            else if (scrollTop > lastScrollTop) {
+                navbar.classList.add('nav-hidden');
+            } 
+            // Yukarı kaydırırken navbar'ı göster
+            else {
+                navbar.classList.remove('nav-hidden');
+            }
+            
+            lastScrollTop = scrollTop;
         });
     </script>
 </body>

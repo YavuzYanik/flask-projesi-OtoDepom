@@ -253,7 +253,7 @@ E-ticaret ve ürün listeleme altyapısının veritabanına taşınması. Yönet
 ### Sonraki Oturum İçin Notlar
 E-ticaret ve ürün vitrini arayüzümüz başarıyla dinamikleştirildi. Sonraki oturumda sisteme sepetim kısmının eklenmesi, sepete ürün ekleme/çıkarma fonksiyonlarının yazılması ve sepet toplamının dinamik hesaplanması üzerinde çalışılacak.
 
-## Oturum [7] — [21.05.2026] — [21:00 - 00:30]
+## Oturum [6] — [21.05.2026] — [21:00 - 00:30]
 ### Hedef
 E-ticaret sepet (cart) ve ödeme (checkout) sayfalarının tam fonksiyonel hale getirilmesi. Kategori bazlı ürün listeleme (sayfalama destekli) altyapısının kurulması. Ürün stok takibinin veritabanına eklenip sepet işlemleriyle entegre edilmesi. Kullanıcı deneyimini (UX) artırmak adına modern, Hepsiburada/Trendyol tarzı "yüzen" (toast) bildirim sisteminin tasarlanması.
 
@@ -296,6 +296,51 @@ E-ticaret sepet (cart) ve ödeme (checkout) sayfalarının tam fonksiyonel hale 
 
 ### Sonraki Oturum İçin Notlar
 Tasarım ve sepet akışı büyük ölçüde tamamlandı. Bir sonraki aşamada siparişlerin yönetimi, admin onayı ve hata sayfalarıyla (404/500) projenin genel testlerini yaparak finale hazırlık yapılacak.
+
+## Oturum [7] — [24.05.2026] — [00:30 - 02:00]
+### Hedef
+Projenin akademik standartları eksiksiz karşılaması ve "Next-Generation" (Premium) tasarım diline geçirilmesi. Siyah-Beyaz (Karanlık/Aydınlık mod) uyumunun tam sağlanması, "Smart Sticky Navbar" yapısının kurulması ve AJAX tabanlı "Favoriler" sisteminin uçtan uca geliştirilmesi.
+
+### Kullandığım Mod ve Model
+- Mod: Code / HIGH
+- Model: Gemini (Antigravity YARDIMCI)
+- Görünüm: Editor / Manager
+
+### Verdiğim Promptlar
+1. "Bootstrap 5 ile Yeni Nesil kartlar olsun..."
+2. "Ürünleri favorilere ekleme tuşu ekle, favorilere eklenen ürünler burada gözüksün 2. görseldeki gibi ama benim ürünlerde yıldız olsun..."
+3. "Siyah beyaz özelliklere dikkat et ödevden 100 almam lazım bu halde hocaya sordum 50 alırsın dedi..."
+4. "Aşağı inince kaybolan, biraz yukarı yapınca üst menü görünen dediğimi anladın mı?" (Smart Navbar)
+5. "Beyaz siyah menüleri komple elden geçir, siyah tema güzel bazı yazılar okunmuyor beyaz temada da bazı yazılar okunmuyor... kusursuz olmalı."
+6. "Beyaz modda oto yazısı okunmuyor, siyah modda yıldız belli olmuyor."
+
+### Ajanın Önerdiği Plan
+1. **Veritabanı:** Many-to-Many ilişkisi (`user_favorites` tablosu) oluşturularak ürünlerin kullanıcılara bağlanması ve `/toggle_favorite` asenkron (Fetch) API'sine entegre edilmesi.
+2. **UI/UX (Smart Navbar):** Kaydırma (Scroll) yönünü algılayan özel bir JavaScript Event Listener ile menünün yukarı kaydırmalarda belirmesini, aşağıda gizlenmesini (`transform: translateY(-100%)`) sağlayan yapının kurulması.
+3. **Temalandırma Düzeltmesi:** Tüm statik renk utility sınıflarının (`text-white`, `bg-dark` vs.) silinip, dinamik `var(--text-color)`, `var(--surface-color)` CSS değişkenlerini kullanan `.text-theme` gibi global sınıflara dönüştürülmesi.
+
+### Plan'da Sorguladıklarım
+- Tasarımın çok eflatun/mor ağırlıklı olmasının akademik (hocanın beklediği) standarda uymadığını belirterek, her şeyin Siyah-Gümüş-Beyaz minimalizmine (Apple/Tesla hissiyatı) çekilmesi konusunda kesin uyarılar verdim.
+
+### Üretilen Kodda Düzelttiklerim
+- Sayfa yenilenmeden çalışan AJAX Fetch fonksiyonunu ekleyerek, kullanıcının yıldıza bastığı anda ikonun durum değiştirmesini (`fa-solid`, `fa-regular`) ve sarı/gri renge geçmesini entegre ettik.
+- "Giriş Yap" / "Üye Ol" gibi yönlendirmeleri, favori butonuna tıklayan misafir (Giriş yapmamış) kullanıcılar için güvenli şekilde yapılandırdık.
+
+### Karşılaştığım Hatalar ve Çözümler
+- **Hata:** Beyaz modda menüdeki "Oto" yazısının beyaz arka plan üzerinde kaybolması.
+- **Çözüm:** Sabit renkli `.text-white` yapıları dinamik `.text-theme` sınıfıyla değiştirilerek logonun duruma göre siyah/beyaz olması sağlandı.
+- **Hata:** Karanlık modda, boş favori yıldızının, favori butonunun beyaz dairesi üzerinde görünmez olması (`var(--text-color)` kaynaklı).
+- **Çözüm:** Yıldızların pasif rengi statik koyu gri (`#4b5563`) renk kodu ile sabitlendi, JavaScript mantığı buna göre güncellendi.
+- **Hata:** Tüm Kartların (`[data-theme="light"] .card`) içindeki metinlerin beyaz temada siyah olmaya zorlanması sonucu Siyah Garaj kartlarının içindeki metinlerin bozulması.
+- **Çözüm:** Bootstrap'i zorlayan tüm `[data-theme="light"]` global CSS ezmeleri `base.html` üzerinden temizlendi ve daha kontrollü Custom CSS sınıflarına geçildi.
+
+### Bu Oturumdan Öğrendiğim
+- Many-to-Many veri ilişkilerini (Kullanıcı-Ürün Favorileri) SQLAlchemy üzerinde tablo kurarak oluşturmayı ve AJAX Fetch istekleri ile sayfa yenilenmeden anlık manipülasyonları yapmayı (Next-Gen UI Experience) öğrendim.
+- Scroll (Kaydırma) yönünü algılayan Smart/Sticky Navbar mekaniğinin kullanıcıya nasıl geniş ekran hissiyatı sunduğunu keşfettim.
+- "Hardcoded" (Sabit kodlu) Bootstap renklerinin (ör: `text-white`), Dark/Light Mode entegrasyonlarında ölümcül kontrast sorunları açabildiğini ve CSS Değişkenlerinin (`:root` variables) neden endüstri standardı olduğunu tecrübe ettim.
+
+### Sonraki Oturum İçin Notlar
+Proje Siyah/Beyaz kontrast teması, Smart Navbar ve Favori Sistemi ile tam bir "Yeni Nesil" ve premium tasarıma kavuştu. Bir sonraki ve muhtemelen son adımda sadece projenin rapor dosyası olan `docs/rapor.md`'nin eksiksiz biçimde doldurulup sunum ve GitHub teslimatına hazır hale getirilmesi hedeflenmektedir.
 
 10 Adımlık Geliştirme Yol Haritamız:
 

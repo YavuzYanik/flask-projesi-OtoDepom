@@ -3,9 +3,9 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">
-        <div class="card shadow border-0 mt-4 mb-5">
-            <div class="card-body p-5">
-                <h3 class="card-title text-center mb-4 fw-bold">Yeni Hesap Oluştur</h3>
+        <div class="card bg-surface text-theme shadow border-0 mt-4 mb-5">
+            <div class="card bg-surface text-theme-body p-5">
+                <h3 class="card bg-surface text-theme-title text-center mb-4 fw-bold">Yeni Hesap Oluştur</h3>
                 <form action="" method="post" novalidate>
                     {{ form.hidden_tag() }}
                     
@@ -46,7 +46,7 @@
                     </div>
                 </form>
             </div>
-            <div class="card-footer bg-white text-center py-3 border-0">
+            <div class="card bg-surface text-theme-footer bg-surface text-center py-3 border-0">
                 <div class="text-muted">Zaten hesabınız var mı? <a href="{{ url_for('auth.login') }}" class="text-decoration-none fw-bold">Giriş Yapın</a></div>
             </div>
         </div>

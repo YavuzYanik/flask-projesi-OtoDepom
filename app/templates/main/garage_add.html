@@ -66,7 +66,7 @@
 <div class="container mt-3 mb-5">
     <div class="search-box mt-4">
         <div class="p-4 p-md-5">
-            <h4 class="mb-4 text-white"><i class="fa-solid fa-car-side me-2"></i>Garajıma Araç Ekle</h4>
+            <h4 class="mb-4 text-theme"><i class="fa-solid fa-car-side me-2"></i>Garajıma Araç Ekle</h4>
             
             <form id="vehicleForm" method="POST" action="{{ url_for('main.garage_add') }}">
                 
@@ -95,7 +95,7 @@
                     </div>
 
                     <!-- Araca Göre Değişen Dinamik Özellikler -->
-                    <h5 class="text-white mb-3 mt-2"><i class="fa-solid fa-gears me-2"></i> Araç Özellikleri</h5>
+                    <h5 class="text-theme mb-3 mt-2"><i class="fa-solid fa-gears me-2"></i> Araç Özellikleri</h5>
                     <div class="row mb-4">
                         <div class="col-md-3 mb-3">
                             <label class="form-label text-warning">Model Yılı</label>
@@ -137,7 +137,7 @@
                     <div class="d-flex justify-content-between align-items-center mt-4 border-top border-secondary pt-4">
                         <div></div>
                         <div>
-                            <a href="{{ url_for('main.garage') }}" class="btn text-white me-3"><i class="fa-solid fa-rotate-left me-1"></i> İptal</a>
+                            <a href="{{ url_for('main.garage') }}" class="btn text-theme me-3"><i class="fa-solid fa-rotate-left me-1"></i> İptal</a>
                             <button type="button" class="btn btn-accent px-5 py-2" onclick="nextStep()">Sonraki Adım <i class="fa-solid fa-arrow-right ms-2"></i></button>
                         </div>
                     </div>
@@ -171,7 +171,7 @@
                     </div>
                     
                     <div class="d-flex justify-content-between align-items-center mt-4 border-top border-secondary pt-4">
-                        <button type="button" class="btn text-white" onclick="prevStep()"><i class="fa-solid fa-rotate-left me-1"></i> Geri Dön</button>
+                        <button type="button" class="btn text-theme" onclick="prevStep()"><i class="fa-solid fa-rotate-left me-1"></i> Geri Dön</button>
                         <button type="submit" class="btn btn-accent px-5 py-2"><i class="fa-solid fa-floppy-disk me-2"></i> Garaja Ekle</button>
                     </div>
                 </div>

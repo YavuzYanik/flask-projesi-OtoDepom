@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request, current_app
+from flask import render_template, redirect, url_for, flash, request, current_app, jsonify
 from flask_login import login_required, current_user
 from app import db
 from app.main import main
@@ -10,8 +10,34 @@ import os
 @main.route('/')
 @main.route('/index')
 def index():
-    popular_products = Product.query.limit(4).all()
-    return render_template('main/index.html', title='Ana Sayfa', popular_products=popular_products)
+    avantajli_urunler = Product.query.limit(4).all()
+    lastikler = Product.query.filter_by(category='Lastik').limit(4).all()
+    akuler = Product.query.filter_by(category='Akü').limit(4).all()
+    yaglar = Product.query.filter_by(category='Motor Yağı').limit(4).all()
+    
+    return render_template('main/index.html', title='Ana Sayfa', 
+                           avantajli_urunler=avantajli_urunler,
+                           lastikler=lastikler,
+                           akuler=akuler,
+                           yaglar=yaglar)
+
+@main.route('/favorites')
+@login_required
+def favorites():
+    return render_template('main/favorites.html', title='Favorilerim', products=current_user.favorites)
+
+@main.route('/toggle_favorite/<int:product_id>', methods=['POST'])
+@login_required
+def toggle_favorite(product_id):
+    product = Product.query.get_or_404(product_id)
+    if product in current_user.favorites:
+        current_user.favorites.remove(product)
+        status = 'removed'
+    else:
+        current_user.favorites.append(product)
+        status = 'added'
+    db.session.commit()
+    return jsonify({'status': status, 'product_id': product_id})
 
 @main.route('/garage')
 @login_required

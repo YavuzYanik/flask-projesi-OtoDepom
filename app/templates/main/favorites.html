@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex align-items-center justify-content-between border-bottom border-secondary pb-3 mb-4">
+        <h2 class="fw-bold text-theme mb-0"><i class="fa-solid fa-star text-warning me-2"></i> Favorilerim</h2>
+        <span class="badge bg-light text-dark px-3 py-2" style="font-size: 1rem;">{{ products|length }} Ürün</span>
+    </div>
+
+    <div class="row">
+        {% if products %}
+            {% for p in products %}
+            <div class="col-6 col-md-4 col-lg-3 mb-4">
+                <div class="product-card position-relative" style="background-color: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease; height: 100%; display: flex; flex-direction: column;">
+                    <!-- Favorite Button -->
+                    <button onclick="toggleFavorite({{ p.id }}, event); location.reload();" class="btn btn-sm btn-light position-absolute top-0 end-0 m-2 rounded-circle shadow-sm" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; z-index: 10;" title="Favorilerden Çıkar">
+                        <i class="fa-solid fa-star fav-icon-{{ p.id }}" style="color: #f59e0b; font-size: 1rem;"></i>
+                    </button>
+                    
+                    <a href="{{ url_for('main.product_detail', id=p.id) }}" class="text-decoration-none d-block flex-grow-1">
+                        <div class="product-img-wrapper" style="height: 140px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                            {% if p.image_url %}
+                                {% if p.image_url.startswith('http') %}
+                                    <img src="{{ p.image_url }}" alt="{{ p.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='products/' + p.image_url) }}" alt="{{ p.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                                {% endif %}
+                            {% else %}
+                                <i class="fa-solid fa-box" style="font-size: 4rem; color: #a0a5b1; opacity: 0.3;"></i>
+                            {% endif %}
+                        </div>
+                        <div class="product-spec text-theme fw-bold mb-1" style="font-size: 0.95rem;">{{ p.specs }}</div>
+                        <h5 class="product-title" style="color: white; font-weight: 600; font-size: 0.9rem;">{{ p.name }}</h5>
+                        <p class="product-subtitle mb-2" style="color: #a0a5b1; font-size: 0.8rem;">{{ p.category }}</p>
+                        <div class="product-price mt-auto" style="color: #10b981; font-weight: 800; font-size: 1.15rem;">{{ "{:,.2f}".format(p.price) }} TL</div>
+                    </a>
+                    
+                    <div class="mt-3">
+                        <a href="{{ url_for('main.product_detail', id=p.id) }}" class="btn btn-outline-light w-100 btn-sm"><i class="fa-solid fa-cart-shopping me-2"></i>Sepete Ekle</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <i class="fa-regular fa-star mb-3" style="font-size: 4rem; color: #a0a5b1; opacity: 0.3;"></i>
+                <h4 class="text-theme">Favorilerinizde hiç ürün yok.</h4>
+                <p class="text-theme-muted">Ürünleri incelerken yıldız ikonuna tıklayarak favorilerinize ekleyebilirsiniz.</p>
+                <a href="{{ url_for('main.products') }}" class="btn btn-light mt-3 px-4 fw-bold">Ürünlere Göz At</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        border-color: var(--text-color) !important;
+    }
+</style>
+{% endblock %}

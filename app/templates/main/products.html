@@ -26,32 +26,40 @@
         background-color: rgba(123, 61, 235, 0.05);
     }
 
-    /* Araca Göre Arama Kutusu */
+    /* Araca Göre Arama Kutusu - Next Gen */
     .vehicle-search-box {
-        background-color: var(--surface-color);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
+        background: linear-gradient(145deg, var(--surface-color) 0%, rgba(20, 22, 30, 0.95) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 24px;
         display: flex;
         overflow: hidden;
         margin-bottom: 3rem;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
     }
     .vehicle-search-left {
-        background: linear-gradient(135deg, #16181f, #1e222b);
-        border-right: 1px solid var(--border-color);
+        background: rgba(123, 61, 235, 0.05);
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
         color: white;
-        padding: 1.5rem;
+        padding: 2.5rem 1.5rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        min-width: 200px;
+        min-width: 250px;
         text-align: center;
+        position: relative;
+    }
+    .vehicle-search-left::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(135deg, rgba(123, 61, 235, 0.15) 0%, transparent 100%);
+        pointer-events: none;
     }
     .vehicle-search-right {
-        padding: 1.5rem 2rem;
+        padding: 2.5rem;
         flex-grow: 1;
-        background-color: #121418;
+        background-color: transparent;
         position: relative;
     }
 
@@ -100,14 +108,21 @@
     }
 
     .form-select-search {
-        background-color: var(--surface-color);
-        border: 1px solid var(--border-color);
+        background-color: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         color: white;
-        border-radius: 8px;
+        border-radius: 12px;
+        padding: 0.8rem 1rem;
+        transition: all 0.3s ease;
+    }
+    .form-select-search option {
+        background-color: #1e222b;
+        color: white;
     }
     .form-select-search:focus {
         border-color: var(--accent-color);
-        box-shadow: 0 0 0 0.25rem rgba(123,61,235,0.25);
+        box-shadow: 0 0 0 4px rgba(123,61,235,0.15);
+        background-color: rgba(255, 255, 255, 0.06);
     }
     .form-select-search:disabled {
         background-color: #16181f !important;
@@ -354,12 +369,12 @@
 
             <!-- SEKME 1: Garajdan Seç -->
             <div id="vsb-panel-garage" class="vsb-panel {% if not manual_specs %}active{% endif %}">
-                <h5 class="text-white mb-1">Garajımdan <span style="color:#a0a5b1;">Araç Seç</span></h5>
-                <p class="mb-3" style="color:#a0a5b1;font-size:.85rem;">Eklediğin araçlara özel uyumlu ürünleri listele</p>
+                <h5 class="text-theme mb-1">Garajımdan <span style="color:var(--text-muted);">Araç Seç</span></h5>
+                <p class="mb-3" style="color:var(--text-muted);font-size:.85rem;">Eklediğin araçlara özel uyumlu ürünleri listele</p>
                 {% if current_user.is_authenticated and current_user.vehicles %}
                     <div class="row g-3 align-items-end">
                         <div class="col-md-8">
-                            <label class="form-label text-white-50" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;">Araç Seçin</label>
+                            <label class="form-label text-theme-muted" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;">Araç Seçin</label>
                             <select id="garageSelect" class="form-select form-select-search" onchange="applyGarageFilter()">
                                 <option value="">— Garajımdan Araç Seç —</option>
                                 {% for v in current_user.vehicles %}
@@ -370,7 +385,7 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <button class="btn w-100" style="background:var(--accent-color);color:white;font-weight:700;border-radius:8px;" onclick="applyGarageFilter()">
+                            <button class="btn w-100 filter-btn" style="background:var(--accent-color);color:white;font-weight:700;border-radius:12px;padding:0.8rem;transition:all 0.3s;" onmouseover="this.style.boxShadow='0 10px 20px rgba(123,61,235,0.4)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='none'; this.style.transform='none'" onclick="applyGarageFilter()">
                                 <i class="fa-solid fa-magnifying-glass me-2"></i>Filtrele
                             </button>
                         </div>
@@ -383,7 +398,7 @@
                 {% else %}
                     <div class="text-center py-3">
                         <i class="fa-solid fa-garage" style="font-size:3rem;color:#2a2d35;"></i>
-                        <p class="mt-2 mb-3" style="color:#a0a5b1;">Garajınızda henüz araç yok.</p>
+                        <p class="mt-2 mb-3" style="color:var(--text-muted);">Garajınızda henüz araç yok.</p>
                         {% if current_user.is_authenticated %}
                             <a href="{{ url_for('main.garage_add') }}" class="btn" style="background:var(--accent-color);color:white;border-radius:8px;">
                                 <i class="fa-solid fa-plus me-2"></i>Araç Ekle
@@ -399,56 +414,56 @@
 
             <!-- SEKME 2: Elle Araç Gir -->
             <div id="vsb-panel-manual" class="vsb-panel {% if manual_specs %}active{% endif %}">
-                <h5 class="text-white mb-1">Başka Araç <span style="color:#a0a5b1;">Seç</span></h5>
-                <p class="mb-3" style="color:#a0a5b1;font-size:.85rem;">Aracını listede bul, uyumlu ürünleri görüntüle</p>
+                <h5 class="text-theme mb-1">Başka Araç <span style="color:var(--text-muted);">Seç</span></h5>
+                <p class="mb-3" style="color:var(--text-muted);font-size:.85rem;">Aracını listede bul, uyumlu ürünleri görüntüle</p>
                 <form method="get" action="{{ url_for('main.products') }}" id="manualVehicleForm">
                     <div class="row g-3 align-items-end">
                         <div class="col-md-3">
-                            <label class="form-label text-white-50" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;">Marka</label>
+                            <label class="form-label text-theme-muted" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;">Marka</label>
                             <select id="m-brand" name="brand" class="form-select form-select-search" onchange="loadSeries()">
                                 <option value="">— Marka —</option>
                                 <!-- CAR_DATA markalarını JS ile dolduracağız -->
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label text-white-50" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;">Seri / Model</label>
+                            <label class="form-label text-theme-muted" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;">Seri / Model</label>
                             <select id="m-series" name="series" class="form-select form-select-search" onchange="loadMotors()" disabled>
                                 <option value="">— Önce Marka —</option>
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label text-white-50" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;">Motor / Yakıt</label>
+                            <label class="form-label text-theme-muted" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;">Motor / Yakıt</label>
                             <select id="m-motor" name="motor" class="form-select form-select-search" disabled>
                                 <option value="">— Önce Seri —</option>
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <button type="submit" class="btn w-100" style="background:var(--accent-color);color:white;font-weight:700;border-radius:8px;" id="manualSearchBtn" disabled>
+                            <button type="submit" class="btn w-100" style="background:var(--accent-color);color:white;font-weight:700;border-radius:12px;padding:0.8rem;transition:all 0.3s;" onmouseover="this.style.boxShadow='0 10px 20px rgba(123,61,235,0.4)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='none'; this.style.transform='none'" id="manualSearchBtn" disabled>
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
                     </div>
                 </form>
                 {% if manual_specs %}
-                    <div class="mt-3 p-3 rounded" style="background:#1a1d25;border:1px solid #2a2d35;">
+                    <div class="mt-3 p-3 rounded" style="background:var(--surface-color);border:1px solid var(--border-color);">
                         <div class="row g-2 text-center">
                             <div class="col-4">
-                                <small class="text-white-50 d-block">Motor Yağı</small>
+                                <small class="text-theme-muted d-block">Motor Yağı</small>
                                 <span class="fw-bold" style="color:#f59e0b;">{{ manual_specs.oil }}</span>
                             </div>
                             <div class="col-4">
-                                <small class="text-white-50 d-block">Akü</small>
+                                <small class="text-theme-muted d-block">Akü</small>
                                 <span class="fw-bold" style="color:#10b981;">{{ manual_specs.battery }}</span>
                             </div>
                             <div class="col-4">
-                                <small class="text-white-50 d-block">Lastik Ebadı</small>
+                                <small class="text-theme-muted d-block">Lastik Ebadı</small>
                                 <span class="fw-bold" style="color:#60a5fa;">{{ manual_specs.tire }}</span>
                             </div>
                         </div>
                     </div>
                     <p class="mt-2 mb-0 text-success" style="font-size:.9rem;">
                         <i class="fa-solid fa-circle-check me-2"></i>{{ manual_brand }} {{ manual_series }} — {{ manual_motor }} uyumlu ürünler listeleniyor.
-                        <a href="{{ url_for('main.products') }}" class="ms-2 text-white-50" style="font-size:.8rem;">[Temizle]</a>
+                        <a href="{{ url_for('main.products') }}" class="ms-2 text-theme-muted" style="font-size:.8rem;">[Temizle]</a>
                     </p>
                 {% endif %}
             </div>
@@ -475,7 +490,15 @@
         <div class="product-slider-row">
             {% for p in oils %}
             <div class="product-slider-item">
-                <div class="product-card">
+                <div class="product-card position-relative">
+                    <!-- Favorite Button -->
+                    <button onclick="toggleFavorite({{ p.id }}, event)" class="btn btn-sm btn-light position-absolute top-0 end-0 m-2 rounded-circle shadow-sm" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                        {% if current_user.is_authenticated and p in current_user.favorites %}
+                            <i class="fa-solid fa-star fav-icon-{{ p.id }}" style="color: #f59e0b; font-size: 1rem;"></i>
+                        {% else %}
+                            <i class="fa-regular fa-star fav-icon-{{ p.id }}" style="color: #4b5563; font-size: 1rem;"></i>
+                        {% endif %}
+                    </button>
                     <a href="{{ url_for('main.product_detail', id=p.id) }}" class="text-decoration-none d-block flex-grow-1">
                         <div class="product-img-wrapper">
                             {% if p.image_url %}
@@ -499,7 +522,7 @@
                 </div>
             </div>
             {% else %}
-            <div class="w-100 text-center text-white-50 py-4">Bu kategoriye uygun motor yağı bulunamadı.</div>
+            <div class="w-100 text-center text-theme-muted py-4">Bu kategoriye uygun motor yağı bulunamadı.</div>
             {% endfor %}
         </div>
     </div>
@@ -522,7 +545,15 @@
         <div class="product-slider-row">
             {% for p in tires %}
             <div class="product-slider-item">
-                <div class="product-card">
+                <div class="product-card position-relative">
+                    <!-- Favorite Button -->
+                    <button onclick="toggleFavorite({{ p.id }}, event)" class="btn btn-sm btn-light position-absolute top-0 end-0 m-2 rounded-circle shadow-sm" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                        {% if current_user.is_authenticated and p in current_user.favorites %}
+                            <i class="fa-solid fa-star fav-icon-{{ p.id }}" style="color: #f59e0b; font-size: 1rem;"></i>
+                        {% else %}
+                            <i class="fa-regular fa-star fav-icon-{{ p.id }}" style="color: #4b5563; font-size: 1rem;"></i>
+                        {% endif %}
+                    </button>
                     <a href="{{ url_for('main.product_detail', id=p.id) }}" class="text-decoration-none d-block flex-grow-1">
                         <div class="product-img-wrapper">
                             {% if p.image_url %}
@@ -546,7 +577,7 @@
                 </div>
             </div>
             {% else %}
-            <div class="w-100 text-center text-white-50 py-4">Bu kategoriye uygun lastik bulunamadı.</div>
+            <div class="w-100 text-center text-theme-muted py-4">Bu kategoriye uygun lastik bulunamadı.</div>
             {% endfor %}
         </div>
     </div>
@@ -569,7 +600,15 @@
         <div class="product-slider-row">
             {% for p in others %}
             <div class="product-slider-item">
-                <div class="product-card">
+                <div class="product-card position-relative">
+                    <!-- Favorite Button -->
+                    <button onclick="toggleFavorite({{ p.id }}, event)" class="btn btn-sm btn-light position-absolute top-0 end-0 m-2 rounded-circle shadow-sm" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                        {% if current_user.is_authenticated and p in current_user.favorites %}
+                            <i class="fa-solid fa-star fav-icon-{{ p.id }}" style="color: #f59e0b; font-size: 1rem;"></i>
+                        {% else %}
+                            <i class="fa-regular fa-star fav-icon-{{ p.id }}" style="color: #4b5563; font-size: 1rem;"></i>
+                        {% endif %}
+                    </button>
                     <a href="{{ url_for('main.product_detail', id=p.id) }}" class="text-decoration-none d-block flex-grow-1">
                         <div class="product-img-wrapper">
                             {% if p.image_url %}
@@ -592,7 +631,7 @@
                 </div>
             </div>
             {% else %}
-            <div class="w-100 text-center text-white-50 py-4">Bu kategoriye uygun ürün bulunamadı.</div>
+            <div class="w-100 text-center text-theme-muted py-4">Bu kategoriye uygun ürün bulunamadı.</div>
             {% endfor %}
         </div>
     </div>
@@ -615,7 +654,15 @@
         <div class="product-slider-row">
             {% for p in batteries %}
             <div class="product-slider-item">
-                <div class="product-card">
+                <div class="product-card position-relative">
+                    <!-- Favorite Button -->
+                    <button onclick="toggleFavorite({{ p.id }}, event)" class="btn btn-sm btn-light position-absolute top-0 end-0 m-2 rounded-circle shadow-sm" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                        {% if current_user.is_authenticated and p in current_user.favorites %}
+                            <i class="fa-solid fa-star fav-icon-{{ p.id }}" style="color: #f59e0b; font-size: 1rem;"></i>
+                        {% else %}
+                            <i class="fa-regular fa-star fav-icon-{{ p.id }}" style="color: #4b5563; font-size: 1rem;"></i>
+                        {% endif %}
+                    </button>
                     <a href="{{ url_for('main.product_detail', id=p.id) }}" class="text-decoration-none d-block flex-grow-1">
                         <div class="product-img-wrapper">
                             {% if p.image_url %}
@@ -639,7 +686,7 @@
                 </div>
             </div>
             {% else %}
-            <div class="w-100 text-center text-white-50 py-4">Bu kategoriye uygun akü bulunamadı.</div>
+            <div class="w-100 text-center text-theme-muted py-4">Bu kategoriye uygun akü bulunamadı.</div>
             {% endfor %}
         </div>
     </div>

@@ -37,11 +37,11 @@
                 </ol>
             </nav>
             
-            <h1 class="text-white fw-bold mb-2">{{ product.name }}</h1>
-            <p class="text-white-50 mb-4" style="font-size: 1.1rem;">Premium kalite {{ product.category }} ürünü.</p>
+            <h1 class="text-theme fw-bold mb-2">{{ product.name }}</h1>
+            <p class="text-theme-muted mb-4" style="font-size: 1.1rem;">Premium kalite {{ product.category }} ürünü.</p>
             
             <div class="mb-4">
-                <span class="badge bg-dark border border-secondary p-2 px-3 text-white" style="font-size: 1.1rem;">
+                <span class="badge bg-surface border border-theme p-2 px-3 text-theme" style="font-size: 1.1rem;">
                     <i class="fa-solid fa-tag text-purple me-2"></i>{{ product.specs }}
                 </span>
             </div>
@@ -55,13 +55,13 @@
                 {% endif %}
             </div>
 
-            <hr class="border-secondary mb-4">
+            <hr class="border-theme mb-4">
 
             <div class="mb-5">
-                <h5 class="text-white mb-3"><i class="fa-solid fa-circle-info text-purple me-2"></i>Ürün Bilgileri</h5>
-                <ul class="list-unstyled text-white-50">
-                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Kategori: <strong class="text-white">{{ product.category }}</strong></li>
-                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Stok Kodu: <strong class="text-white">PRD-{{ product.id }}</strong></li>
+                <h5 class="text-theme mb-3"><i class="fa-solid fa-circle-info text-purple me-2"></i>Ürün Bilgileri</h5>
+                <ul class="list-unstyled text-theme-muted">
+                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Kategori: <strong class="text-theme">{{ product.category }}</strong></li>
+                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Stok Kodu: <strong class="text-theme">PRD-{{ product.id }}</strong></li>
                     <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Hızlı Kargo İmkanı</li>
                     <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> %100 Orijinal Ürün Garantisi</li>
                 </ul>
@@ -70,14 +70,21 @@
             <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST">
                 <div class="d-flex align-items-center gap-3 mb-3">
                     <div class="input-group" style="width: 130px;">
-                        <button class="btn btn-outline-secondary text-white" type="button" onclick="document.getElementById('qty').stepDown()">-</button>
-                        <input type="number" id="qty" name="quantity" class="form-control text-center bg-dark text-white border-secondary" value="1" min="1" max="{{ product.stock }}">
-                        <button class="btn btn-outline-secondary text-white" type="button" onclick="document.getElementById('qty').stepUp()">+</button>
+                        <button class="btn btn-outline-theme" type="button" onclick="document.getElementById('qty').stepDown()">-</button>
+                        <input type="number" id="qty" name="quantity" class="form-control text-center bg-surface text-theme border-theme" value="1" min="1" max="{{ product.stock }}">
+                        <button class="btn btn-outline-theme" type="button" onclick="document.getElementById('qty').stepUp()">+</button>
                     </div>
                     <button type="submit" class="btn btn-purple btn-lg px-4" style="border-radius: 10px;" {% if product.stock < 1 %}disabled{% endif %}>
                         <i class="fa-solid fa-cart-shopping me-2"></i> Sepete Ekle
                     </button>
-                    <a href="{{ url_for('main.products') }}" class="btn btn-outline-light btn-lg px-4" style="border-radius: 10px;">
+                    <button type="button" onclick="toggleFavorite({{ product.id }}, event)" class="btn btn-outline-theme btn-lg px-4" style="border-radius: 10px;" title="Favorilere Ekle">
+                        {% if current_user.is_authenticated and product in current_user.favorites %}
+                            <i class="fa-solid fa-star fav-icon-{{ product.id }}" style="color: #f59e0b;"></i>
+                        {% else %}
+                            <i class="fa-regular fa-star fav-icon-{{ product.id }}"></i>
+                        {% endif %}
+                    </button>
+                    <a href="{{ url_for('main.products') }}" class="btn btn-outline-theme btn-lg px-4" style="border-radius: 10px;">
                         Geri Dön
                     </a>
                 </div>
@@ -86,10 +93,10 @@
             <!-- Uyumlu Araçlar (Opsiyonel) -->
             {% if product.compatible_vehicles %}
             <div class="mt-5">
-                <h5 class="text-white mb-3">Uyumlu Araçlar</h5>
+                <h5 class="text-theme mb-3">Uyumlu Araçlar</h5>
                 <div class="d-flex flex-wrap gap-2">
                     {% for v in product.compatible_vehicles %}
-                        <span class="badge bg-dark border border-secondary text-white-50">{{ v.brand }} {{ v.model_name }}</span>
+                        <span class="badge bg-surface border border-theme text-theme-muted">{{ v.brand }} {{ v.model_name }}</span>
                     {% endfor %}
                 </div>
             </div>

@@ -2,32 +2,88 @@
 
 {% block content %}
 <style>
-    /* Dark Theme specific to Garage to match mobile.de aesthetic */
+    /* Next-Gen Premium Garage Card */
     .garage-card {
-        background-color: var(--surface-color);
-        color: var(--text-color);
-        border-radius: 12px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: linear-gradient(160deg, #181a20 0%, #0d0f12 100%);
+        color: #ffffff;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+    }
+    .garage-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #fff, rgba(255,255,255,0.2));
+        opacity: 0;
+        transition: opacity 0.4s ease;
     }
     .garage-card:hover { 
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.7);
-        border-color: var(--accent-color);
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        border-color: rgba(255, 255, 255, 0.2);
     }
+    .garage-card:hover::before {
+        opacity: 1;
+    }
+    
     .add-car-btn {
-        background-color: var(--accent-color);
-        color: white;
+        background: #ffffff;
+        color: #000000;
         border: none;
-        border-radius: 8px;
-        padding: 10px 25px;
-        font-weight: 600;
-        transition: 0.3s;
+        border-radius: 12px;
+        padding: 12px 28px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(255,255,255,0.2);
     }
     .add-car-btn:hover {
-        background-color: var(--accent-hover);
+        background: #e0e0e0;
+        color: #000000;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255,255,255,0.3);
+    }
+    
+    .btn-manage {
+        background: transparent;
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    .btn-manage:hover {
+        background: #ffffff;
+        color: #000000;
+        border-color: #ffffff;
+    }
+    .btn-delete-gen {
+        border-radius: 10px;
+        border: 1px solid rgba(220, 53, 69, 0.5);
+        color: #ff4d4d;
+        background: rgba(220, 53, 69, 0.1);
+        transition: all 0.3s;
+    }
+    .btn-delete-gen:hover {
+        background: #dc3545;
         color: white;
+        border-color: #dc3545;
+    }
+    
+    .data-box {
+        background: rgba(255,255,255,0.03);
+        border-radius: 12px;
+        padding: 1rem;
+        border: 1px solid rgba(255,255,255,0.05);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
     
     /* Gerçekçi Türkiye Plakası Tasarımı */
@@ -68,7 +124,7 @@
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4 mt-3 border-bottom pb-3" style="border-color: var(--border-color) !important;">
-    <h2 class="fw-bold mb-0 text-white">Garajım</h2>
+    <h2 class="fw-bold mb-0 text-theme">Garajım</h2>
     <a href="{{ url_for('main.garage_add') }}" class="add-car-btn text-decoration-none">
         <i class="fa-solid fa-plus me-1"></i> Yeni Araç Ekle
     </a>
@@ -81,8 +137,8 @@
             <div class="card-body pb-0 pt-4">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div>
-                        <h5 class="fw-bold fs-4 mb-0 text-white">{{ vehicle.brand }}</h5>
-                        <p style="color: var(--accent-color); font-weight: 500;">{{ vehicle.model_name }} • {{ vehicle.year }}</p>
+                        <h5 class="fw-bold fs-4 mb-1 text-white" style="letter-spacing: 0.5px;">{{ vehicle.brand }}</h5>
+                        <p style="color: #a0a5b1; font-weight: 500; font-size: 0.9rem;">{{ vehicle.model_name }} <span class="mx-1">•</span> {{ vehicle.year }}</p>
                     </div>
                     {% if vehicle.plate %}
                     <div class="tr-plate">
@@ -120,23 +176,27 @@
                     {% endif %}
                 </div>
 
-                <div class="row text-center mt-4 border-top pt-3" style="border-color: var(--border-color) !important;">
-                    <div class="col-6 border-end" style="border-color: var(--border-color) !important;">
-                        <small class="d-block" style="color: var(--text-muted);"><i class="fa-solid fa-clipboard-check"></i> Muayene</small>
-                        <span class="fw-bold" style="color: #f59e0b;">{{ vehicle.inspection_date.strftime('%d.%m.%Y') if vehicle.inspection_date else 'Belirtilmedi' }}</span>
+                <div class="row text-center mt-3 g-2">
+                    <div class="col-6">
+                        <div class="data-box">
+                            <small class="d-block mb-1" style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;"><i class="fa-solid fa-clipboard-check me-1"></i> Muayene</small>
+                            <span class="fw-bold" style="color: #ffffff; font-size: 1.1rem;">{{ vehicle.inspection_date.strftime('%d.%m.%Y') if vehicle.inspection_date else 'Belirtilmedi' }}</span>
+                        </div>
                     </div>
                     <div class="col-6">
-                        <small class="d-block" style="color: var(--text-muted);"><i class="fa-solid fa-wrench"></i> Yağ Bakımı</small>
-                        <span class="fw-bold" style="color: #10b981;">{{ vehicle.maintenance_date.strftime('%d.%m.%Y') if vehicle.maintenance_date else 'Belirtilmedi' }}</span>
+                        <div class="data-box">
+                            <small class="d-block mb-1" style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;"><i class="fa-solid fa-wrench me-1"></i> Yağ Bakımı</small>
+                            <span class="fw-bold" style="color: #ffffff; font-size: 1.1rem;">{{ vehicle.maintenance_date.strftime('%d.%m.%Y') if vehicle.maintenance_date else 'Belirtilmedi' }}</span>
+                        </div>
                     </div>
                 </div>
             </div> <!-- card-body kapatıldı -->
             
-            <div class="card-footer border-0 pb-4 pt-3" style="background-color: transparent;">
+            <div class="card-footer border-0 pb-4 pt-3" style="background-color: transparent; padding: 0 2rem;">
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('main.garage_detail', id=vehicle.id) }}" class="btn flex-grow-1 fw-bold" style="background-color: var(--accent-color); color: white;">Detayları Yönet</a>
+                    <a href="{{ url_for('main.garage_detail', id=vehicle.id) }}" class="btn btn-manage flex-grow-1">Detayları Yönet</a>
                     <form action="{{ url_for('main.vehicle_delete', id=vehicle.id) }}" method="POST" onsubmit="return confirm('Bu aracı garajdan silmek istediğinize emin misiniz?');" class="m-0">
-                        <button type="submit" class="btn btn-outline-danger h-100 px-3" title="Sil"><i class="fa-solid fa-trash"></i></button>
+                        <button type="submit" class="btn btn-delete-gen h-100 px-3" title="Sil"><i class="fa-solid fa-trash"></i></button>
                     </form>
                 </div>
             </div>
@@ -145,7 +205,7 @@
     {% else %}
     <div class="col-12 text-center py-5" style="background-color: var(--surface-color); border: 1px dashed var(--border-color); border-radius: 12px;">
         <i class="fa-solid fa-car-side mb-3 opacity-25" style="font-size: 4rem; color: var(--text-muted);"></i>
-        <h4 class="text-white">Garajınız şu an boş.</h4>
+        <h4 class="text-theme">Garajınız şu an boş.</h4>
         <p style="color: var(--text-muted);">Aracınızı ekleyerek bakım ve muayene bildirimlerini takip etmeye başlayın.</p>
         <a href="{{ url_for('main.garage_add') }}" class="btn add-car-btn mt-2">Hemen Ekle</a>
     </div>
