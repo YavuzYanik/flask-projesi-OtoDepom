@@ -126,7 +126,7 @@
                                         <img src="{{ url_for('static', filename='products/' + p.image_url) }}" class="product-thumbnail" alt="{{ p.name }}">
                                     {% else %}
                                         <div class="product-thumbnail d-flex align-items-center justify-content-center">
-                                            <i class="fa-solid fa-image text-white-50"></i>
+                                            <i class="fa-solid fa-image text-theme-muted"></i>
                                         </div>
                                     {% endif %}
                                 </td>
@@ -199,7 +199,7 @@
                             </div>
                             {% else %}
                             <tr>
-                                <td colspan="6" class="text-center text-white-50 py-4">Kayıtlı ürün bulunmamaktadır.</td>
+                                <td colspan="6" class="text-center text-theme-muted py-4">Kayıtlı ürün bulunmamaktadır.</td>
                             </tr>
                             {% endfor %}
                         </tbody>

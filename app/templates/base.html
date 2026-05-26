@@ -8,13 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        // Sayfa yüklenmeden önce titremeyi engellemek için temayı anında yükle
-        (function() {
-            const currentTheme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', currentTheme);
-        })();
-    </script>
+
     <style>
         /* CSS Tema Değişkenleri */
         :root {
@@ -29,17 +23,7 @@
             --btn-close-filter: invert(1) grayscale(1) brightness(2);
         }
 
-        [data-theme="light"] {
-            --bg-color: #f3f4f6;
-            --surface-color: #ffffff;
-            --text-color: #111827;
-            --text-muted: #4b5563;
-            --accent-color: #7b3deb; 
-            --accent-hover: #5d2bba;
-            --border-color: #d1d5db;
-            --navbar-bg: #ffffff;
-            --btn-close-filter: none;
-        }
+
 
         body {
             background-color: var(--bg-color);
@@ -93,9 +77,7 @@
             color: var(--text-color) !important; 
             border-color: var(--text-color);
         }
-        [data-theme="light"] .btn-silver-ghost:hover {
-            background: rgba(0, 0, 0, 0.05); 
-        }
+
         
         /* Alertler */
         .alert-success {
@@ -103,101 +85,21 @@
             color: #4caf50;
             border: 1px solid #2e5239;
         }
-        [data-theme="light"] .alert-success {
-            background-color: #d1e7dd;
-            color: #0f5132;
-            border-color: #badbcc;
-        }
+
         .alert-danger {
             background-color: #2e1a1a;
             color: #f44336;
             border: 1px solid #522e2e;
         }
-        [data-theme="light"] .alert-danger {
-            background-color: #f8d7da;
-            color: #842029;
-            border-color: #f5c2c7;
-        }
+
         .alert-info {
             background-color: #1a252e;
             color: #0dcaf0;
             border: 1px solid #2e4452;
         }
-        [data-theme="light"] .alert-info {
-            background-color: #cff4fc;
-            color: #055160;
-            border-color: #b6effb;
-        }
 
-        /* Light Mode İçin İlave Arayüz Adaptasyonları */
-        [data-theme="light"] .form-select, 
-        [data-theme="light"] .form-control {
-            background-color: #ffffff !important;
-            color: #111827 !important;
-            border-color: #d1d5db !important;
-        }
-        [data-theme="light"] .form-select:disabled, 
-        [data-theme="light"] .form-control:disabled {
-            background-color: #f3f4f6 !important;
-            color: #9ca3af !important;
-            border-color: #e5e7eb !important;
-        }
-        [data-theme="light"] .dropdown-menu {
-            background-color: #ffffff !important;
-            border: 1px solid #d1d5db !important;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1) !important;
-        }
-        [data-theme="light"] .dropdown-menu .dropdown-item {
-            color: #111827 !important;
-        }
-        [data-theme="light"] .dropdown-menu .dropdown-item:hover {
-            background-color: #f3f4f6 !important;
-            color: var(--accent-color) !important;
-        }
-        [data-theme="light"] .dropdown-menu .dropdown-divider {
-            border-color: #e5e7eb !important;
-        }
-        [data-theme="light"] .dropdown-menu div.border-bottom {
-            border-color: #e5e7eb !important;
-        }
-        [data-theme="light"] .dropdown-menu span.text-white {
-            color: #111827 !important;
-        }
-        [data-theme="light"] .dropdown-menu div.text-white {
-            color: #111827 !important;
-        }
-        [data-theme="light"] .dropdown-menu div.text-white-50 {
-            color: #4b5563 !important;
-        }
-        [data-theme="light"] .vehicle-search-right {
-            background-color: #f9fafb !important;
-        }
-        [data-theme="light"] .vehicle-search-left {
-            background: linear-gradient(135deg, #ffffff, #f3f4f6) !important;
-            color: #111827 !important;
-            border-right: 1px solid #d1d5db !important;
-        }
-        [data-theme="light"] .mega-footer {
-            background-color: #ffffff !important;
-            border-top: 1px solid #d1d5db !important;
-        }
-        [data-theme="light"] .mega-footer h6 {
-            color: #111827 !important;
-        }
-        [data-theme="light"] .mega-footer-scrollable::-webkit-scrollbar-track {
-            background: #f3f4f6 !important;
-        }
-        [data-theme="light"] .mega-footer-scrollable::-webkit-scrollbar-thumb {
-            background: #d1d5db !important;
-        }
-        [data-theme="light"] .product-slider-arrow {
-            background-color: #ffffff !important;
-            border: 1px solid #d1d5db !important;
-            color: #4b5563 !important;
-        }
-        [data-theme="light"] .btn-close {
-            filter: var(--btn-close-filter) !important;
-        }
+
+
 
 
         /* Tema Utility Sınıfları */
@@ -224,10 +126,7 @@
     <nav class="navbar navbar-expand-lg custom-navbar mb-4 shadow-sm">
         <div class="container">
             <div class="d-flex align-items-center">
-                <!-- Tema Değiştirici (Sol Üst) -->
-                <button id="themeToggleBtn" class="btn btn-sm btn-outline-light rounded-circle me-3" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); color: var(--text-muted); transition: 0.3s;" title="Temayı Değiştir">
-                    <i id="themeToggleIcon" class="fa-solid fa-moon"></i>
-                </button>
+
                 <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}">
                     <i class="fa-solid fa-car-side text-theme me-2" style="font-size: 1.4rem; filter: drop-shadow(0 2px 4px rgba(255,255,255,0.2));"></i>
                     <span class="text-theme" style="letter-spacing: -0.5px;">Oto<span style="color: #c0c0c0; font-weight: 400;">Depom</span></span>
@@ -249,11 +148,11 @@
                             Ürünler <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i>
                         </a>
                         <ul class="dropdown-menu shadow-lg" aria-labelledby="productsDropdown" style="background-color: var(--surface-color); border: 1px solid var(--border-color);">
-                            <li><a class="dropdown-item text-white" href="{{ url_for('main.products') }}">Tüm Ürünler</a></li>
-                            <li><hr class="dropdown-divider border-secondary"></li>
-                            <li><a class="dropdown-item text-white" href="{{ url_for('main.category_products', category_name='lastikler') }}"><i class="fa-solid fa-circle-nodes me-2 text-primary"></i>Avantajlı Lastikler</a></li>
-                            <li><a class="dropdown-item text-white" href="{{ url_for('main.category_products', category_name='akuler') }}"><i class="fa-solid fa-car-battery me-2 text-success"></i>Uzun Ömürlü Aküler</a></li>
-                            <li><a class="dropdown-item text-white" href="{{ url_for('main.category_products', category_name='motor-yaglari') }}"><i class="fa-solid fa-oil-can me-2 text-warning"></i>Katkılı Madeni Yağlar</a></li>
+                            <li><a class="dropdown-item text-theme" href="{{ url_for('main.products') }}">Tüm Ürünler</a></li>
+                            <li><hr class="dropdown-divider border-theme"></li>
+                            <li><a class="dropdown-item text-theme" href="{{ url_for('main.category_products', category_name='lastikler') }}"><i class="fa-solid fa-circle-nodes me-2 text-primary"></i>Avantajlı Lastikler</a></li>
+                            <li><a class="dropdown-item text-theme" href="{{ url_for('main.category_products', category_name='akuler') }}"><i class="fa-solid fa-car-battery me-2 text-success"></i>Uzun Ömürlü Aküler</a></li>
+                            <li><a class="dropdown-item text-theme" href="{{ url_for('main.category_products', category_name='motor-yaglari') }}"><i class="fa-solid fa-oil-can me-2 text-warning"></i>Katkılı Madeni Yağlar</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -262,20 +161,20 @@
                         <a class="nav-link position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-regular fa-bell" style="font-size: 1.1rem;"></i>
                             {% if user_notifications %}
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-light text-dark shadow-sm" style="font-size: 0.65rem; padding: 0.25em 0.5em; margin-top: 5px; margin-left: -5px; border: 1px solid #ccc;">
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-surface text-theme shadow-sm" style="font-size: 0.65rem; padding: 0.25em 0.5em; margin-top: 5px; margin-left: -5px; border: 1px solid #ccc;">
                                     {{ user_notifications|length }}
                                 </span>
                             {% endif %}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end py-2" aria-labelledby="notificationDropdown" style="background-color: var(--surface-color); border: 1px solid var(--border-color); width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
-                            <div class="px-3 py-2 border-bottom border-secondary d-flex justify-content-between align-items-center">
-                                <span class="fw-bold text-white" style="font-size: 0.9rem;">Bildirimler</span>
-                                <span class="badge bg-light text-dark border" style="font-size: 0.75rem;">{{ user_notifications|length }} Yeni</span>
+                            <div class="px-3 py-2 border-bottom border-theme d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-theme" style="font-size: 0.9rem;">Bildirimler</span>
+                                <span class="badge bg-surface text-theme border" style="font-size: 0.75rem;">{{ user_notifications|length }} Yeni</span>
                             </div>
                             {% if user_notifications %}
                                 {% for n in user_notifications %}
                                 <li>
-                                    <a class="dropdown-item px-3 py-2 border-bottom border-secondary d-flex align-items-start gap-2" href="{{ url_for('main.garage_detail', id=n.vehicle_id) }}" style="white-space: normal; transition: 0.2s;">
+                                    <a class="dropdown-item px-3 py-2 border-bottom border-theme d-flex align-items-start gap-2" href="{{ url_for('main.garage_detail', id=n.vehicle_id) }}" style="white-space: normal; transition: 0.2s;">
                                         <div class="mt-1">
                                             {% if n.type == 'inspection' %}
                                                 <i class="fa-solid fa-calendar-check text-warning" style="font-size: 1.1rem;"></i>
@@ -288,17 +187,17 @@
                                             {% endif %}
                                         </div>
                                         <div>
-                                            <div class="fw-semibold text-white" style="font-size: 0.85rem;">{{ n.title }}</div>
-                                            <div class="text-white-50 mt-1" style="font-size: 0.75rem;">{{ n.text }}</div>
+                                            <div class="fw-semibold text-theme" style="font-size: 0.85rem;">{{ n.title }}</div>
+                                            <div class="text-theme-muted mt-1" style="font-size: 0.75rem;">{{ n.text }}</div>
                                             {% if n.plate %}
-                                                <span class="badge bg-dark mt-2 border border-secondary text-light" style="font-size: 0.7rem; font-family: monospace;">{{ n.plate }}</span>
+                                                <span class="badge bg-surface mt-2 border border-theme text-light" style="font-size: 0.7rem; font-family: monospace;">{{ n.plate }}</span>
                                             {% endif %}
                                         </div>
                                     </a>
                                 </li>
                                 {% endfor %}
                             {% else %}
-                                <li class="text-center py-4 text-white-50">
+                                <li class="text-center py-4 text-theme-muted">
                                     <i class="fa-regular fa-bell-slash mb-2 d-block" style="font-size: 1.8rem; opacity: 0.4;"></i>
                                     <span style="font-size: 0.8rem;">Yaklaşan bakım veya muayene bulunmamaktadır.</span>
                                 </li>
@@ -321,13 +220,13 @@
                             <i class="fa-regular fa-user me-1"></i> {{ current_user.username }}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" style="background-color: var(--surface-color); border: 1px solid var(--border-color);">
-                            <li><a class="dropdown-item text-white" href="{{ url_for('main.profile') }}"><i class="fa-regular fa-user me-2"></i>Profilim</a></li>
+                            <li><a class="dropdown-item text-theme" href="{{ url_for('main.profile') }}"><i class="fa-regular fa-user me-2"></i>Profilim</a></li>
                             {% if current_user.is_admin or current_user.username == 'admin' %}
-                            <li><a class="dropdown-item text-white" href="{{ url_for('main.admin_products') }}"><i class="fa-solid fa-gear me-2"></i>Ürün Yönetimi</a></li>
-                            <li><a class="dropdown-item text-white" href="{{ url_for('main.admin_orders') }}"><i class="fa-solid fa-clipboard-list me-2"></i>Sipariş Yönetimi</a></li>
+                            <li><a class="dropdown-item text-theme" href="{{ url_for('main.admin_products') }}"><i class="fa-solid fa-gear me-2"></i>Ürün Yönetimi</a></li>
+                            <li><a class="dropdown-item text-theme" href="{{ url_for('main.admin_orders') }}"><i class="fa-solid fa-clipboard-list me-2"></i>Sipariş Yönetimi</a></li>
                             {% endif %}
                             <li><hr class="dropdown-divider" style="border-color: var(--border-color);"></li>
-                            <li><a class="dropdown-item text-white text-danger" href="{{ url_for('auth.logout') }}"><i class="fa-solid fa-right-from-bracket me-2"></i>Çıkış Yap</a></li>
+                            <li><a class="dropdown-item text-theme text-danger" href="{{ url_for('auth.logout') }}"><i class="fa-solid fa-right-from-bracket me-2"></i>Çıkış Yap</a></li>
                         </ul>
                     </li>
                     {% else %}
@@ -345,7 +244,7 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-            <div class="toast custom-toast align-items-center text-white bg-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'warning' if category == 'warning' else 'primary' }} border-0 shadow-lg mb-3" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000" style="border-radius: 12px;">
+            <div class="toast custom-toast align-items-center text-theme bg-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'warning' if category == 'warning' else 'primary' }} border-0 shadow-lg mb-3" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000" style="border-radius: 12px;">
                 <div class="d-flex">
                     <div class="toast-body d-flex align-items-center fw-semibold fs-6 px-3 py-3">
                         {% if category == 'success' %}
@@ -382,35 +281,7 @@
             const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, { autohide: true, delay: 4000 }));
             toastList.forEach(toast => toast.show());
 
-            const themeBtn = document.getElementById('themeToggleBtn');
-            const themeIcon = document.getElementById('themeToggleIcon');
-            
-            // İkonu ve butonu temaya göre güncelle
-            function updateIcon(theme) {
-                if (theme === 'light') {
-                    themeIcon.className = 'fa-solid fa-sun text-warning';
-                    themeBtn.className = 'btn btn-sm btn-outline-dark rounded-circle me-3';
-                } else {
-                    themeIcon.className = 'fa-solid fa-moon text-light';
-                    themeBtn.className = 'btn btn-sm btn-outline-light rounded-circle me-3';
-                }
-            }
-            
-            // Sayfa yüklenirken ikonu ayarla
-            const currentTheme = localStorage.getItem('theme') || 'dark';
-            updateIcon(currentTheme);
-            
-            themeBtn.addEventListener('click', function() {
-                let theme = document.documentElement.getAttribute('data-theme');
-                if (theme === 'light') {
-                    theme = 'dark';
-                } else {
-                    theme = 'light';
-                }
-                document.documentElement.setAttribute('data-theme', theme);
-                localStorage.setItem('theme', theme);
-                updateIcon(theme);
-            });
+
         });
 
         // Toggle Favorite Function

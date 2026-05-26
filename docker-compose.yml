@@ -1,0 +1,31 @@
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=run.py
+      - FLASK_DEBUG=0
+      - SECRET_KEY=birkarmasikgizlianahtar
+      - DATABASE_URL=postgresql://otodepom_user:otodepom_pass@db:5432/otodepom_db
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=otodepom_user
+      - POSTGRES_PASSWORD=otodepom_pass
+      - POSTGRES_DB=otodepom_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U otodepom_user -d otodepom_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

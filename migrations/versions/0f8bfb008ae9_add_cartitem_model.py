@@ -28,9 +28,10 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.drop_table('product_vehicle')
+    # op.drop_table('product_vehicle')
     with op.batch_alter_table('products', schema=None) as batch_op:
-        batch_op.drop_column('description')
+        pass
+        # batch_op.drop_column('description')
 
     # ### end Alembic commands ###
 
@@ -47,5 +48,5 @@ def downgrade():
     sa.ForeignKeyConstraint(['vehicle_id'], ['vehicles.id'], ),
     sa.PrimaryKeyConstraint('product_id', 'vehicle_id')
     )
-    op.drop_table('cart_items')
+    # op.drop_table('cart_items')
     # ### end Alembic commands ###

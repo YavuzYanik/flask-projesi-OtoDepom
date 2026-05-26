@@ -111,10 +111,10 @@
     </div>
 
     <!-- Filtreler ve Navigasyon -->
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-theme">
         <a href="{{ url_for('main.products') }}" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-2"></i>Tüm Ürünlere Dön</a>
         <div class="text-muted">
-            Toplam <strong class="text-white">{{ products.total }}</strong> ürün bulundu.
+            Toplam <strong class="text-theme">{{ products.total }}</strong> ürün bulundu.
         </div>
     </div>
 
@@ -157,21 +157,21 @@
     <nav aria-label="Page navigation">
         <ul class="pagination justify-content-center">
             <li class="page-item {% if not products.has_prev %}disabled{% endif %}">
-                <a class="page-link bg-dark text-white border-secondary" href="{% if products.has_prev %}{{ url_for('main.category_products', category_name=category_slug, page=products.prev_num) }}{% else %}#{% endif %}">Önceki</a>
+                <a class="page-link bg-surface text-theme border-theme" href="{% if products.has_prev %}{{ url_for('main.category_products', category_name=category_slug, page=products.prev_num) }}{% else %}#{% endif %}">Önceki</a>
             </li>
             
             {% for page_num in products.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
                 {% if page_num %}
                     <li class="page-item {% if products.page == page_num %}active{% endif %}">
-                        <a class="page-link {% if products.page == page_num %}bg-purple border-purple{% else %}bg-dark text-white border-secondary{% endif %}" href="{{ url_for('main.category_products', category_name=category_slug, page=page_num) }}">{{ page_num }}</a>
+                        <a class="page-link {% if products.page == page_num %}bg-purple border-purple{% else %}bg-surface text-theme border-theme{% endif %}" href="{{ url_for('main.category_products', category_name=category_slug, page=page_num) }}">{{ page_num }}</a>
                     </li>
                 {% else %}
-                    <li class="page-item disabled"><span class="page-link bg-dark text-white-50 border-secondary">...</span></li>
+                    <li class="page-item disabled"><span class="page-link bg-surface text-theme-muted border-theme">...</span></li>
                 {% endif %}
             {% endfor %}
 
             <li class="page-item {% if not products.has_next %}disabled{% endif %}">
-                <a class="page-link bg-dark text-white border-secondary" href="{% if products.has_next %}{{ url_for('main.category_products', category_name=category_slug, page=products.next_num) }}{% else %}#{% endif %}">Sonraki</a>
+                <a class="page-link bg-surface text-theme border-theme" href="{% if products.has_next %}{{ url_for('main.category_products', category_name=category_slug, page=products.next_num) }}{% else %}#{% endif %}">Sonraki</a>
             </li>
         </ul>
     </nav>
