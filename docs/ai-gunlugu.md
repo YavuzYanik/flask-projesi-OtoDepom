@@ -342,6 +342,50 @@ Projenin akademik standartları eksiksiz karşılaması ve "Next-Generation" (Pr
 ### Sonraki Oturum İçin Notlar
 Proje Siyah/Beyaz kontrast teması, Smart Navbar ve Favori Sistemi ile tam bir "Yeni Nesil" ve premium tasarıma kavuştu. Bir sonraki ve muhtemelen son adımda sadece projenin rapor dosyası olan `docs/rapor.md`'nin eksiksiz biçimde doldurulup sunum ve GitHub teslimatına hazır hale getirilmesi hedeflenmektedir.
 
+## Oturum [8] — [26.05.2026] — [11:15 - 11:45]
+### Hedef
+Projenin "Production Ready" (Canlıya Hazır) hale getirilmesi için Dockerize edilmesi ve yerel SQLite veritabanından kurumsal PostgreSQL veritabanına geçiş yapılması.
+
+### Kullandığım Mod ve Model
+- Mod: Code / HIGH
+- Model: Gemini (Antigravity YARDIMCI)
+- Görünüm: Editor / Manager
+
+### Verdiğim Promptlar
+1. "Hedef: Bu Flask uygulamasını docker ile çalıştırılabilir hale getir. Dockerfile, docker-compose.yml, .dockerignore oluştur."
+2. Konsolda aldığım çeşitli pip, gunicorn ve PostgreSQL "DatatypeMismatch" hatalarının loglarını doğrudan yapıştırdım.
+
+### Ajanın Önerdiği Plan
+1. `requirements.txt` içerisine sunucu için `gunicorn` ve Postgres bağlantısı için `psycopg2-binary` kütüphanelerinin eklenmesi.
+2. `Dockerfile` oluşturularak `python:3.12-slim` tabanlı, önbelleksiz bir imajın yazılması.
+3. `docker-compose.yml` yazılarak `web` (Flask) ve `db` (Postgres) servislerinin birbirine bağlanıp kalıcı `volume` (veri deposu) tanımlanması.
+4. `.dockerignore` dosyasıyla gereksiz venv ve cache dosyalarının imaj dışı bırakılması.
+
+### Plan'da Sorguladıklarım
+- Başlangıçta eski `migrations` klasörünün silinmesi gerektiği düşünüldü, ancak ajanın SQLite migration'larını koruyarak sadece problemli satırları düzenlemesini kabul ettim.
+
+### Üretilen Kodda Düzelttiklerim
+- `requirements.txt` oluşturulurken PowerShell'in `echo` komutu dosyayı UTF-16 olarak bozduğu için (pip hata veriyordu), Python betiğiyle dosya baştan standart UTF-8 formatında kodlandı. Sürümleri eksik/hatalı olan `flask-login==3.0.0` gibi satırlar `flask-login>=0.6.0` yapılarak temizlendi.
+
+### Karşılaştığım Hatalar ve Çözümler
+- **Hata 1:** `unable to get image ... failed to connect to the docker API`.
+- **Çözüm:** Docker Desktop arkaplanda çalışmıyordu. Uygulama manuel olarak başlatılarak çözüldü.
+- **Hata 2:** `DatatypeMismatch: column is_admin is of type boolean but default expression is of type integer`.
+- **Çözüm:** SQLite'ta boolean (doğru/yanlış) değerler 0 ve 1 olarak tutulduğu için migration dosyasında `server_default=sa.text('0')` yazıyordu. Ancak PostgreSQL katı (strict) olduğu için rakamı kabul etmedi. Bu değer doğrudan `sa.text('false')` olarak değiştirildi.
+- **Hata 3:** `UndefinedTable: table product_vehicle does not exist` ve `UndefinedColumn: column description does not exist`.
+- **Çözüm:** Eski SQLite döneminde silip vazgeçtiğim tabloları/sütunları Alembic hala silmeye çalışıyordu (Halbuki yeni Postgres'te hiç var olmadılar). Bu `op.drop_table` ve `drop_column` komutları yorum satırına (`#`) alınarak (pass geçilerek) aşıldı.
+- **Hata 4:** `seed_db.py` betiği çalışırken Favoriler ve Araç uyumluluk ara tablolarını (`product_compatibility`) bulamadı.
+- **Çözüm:** Docker içerisinde yeni bir `flask db migrate -m "Sync missing tables"` çalıştırılarak eksik tabloların migration'ı oluşturuldu, `upgrade` edildi ve tohumlama (94 ürün basma) betiği başarıyla çalıştı.
+
+### Bu Oturumdan Öğrendiğim
+- Docker, Docker Compose ve PostgreSQL entegrasyonunun bir Flask projesini profesyonel bir endüstri standardına (production-ready) nasıl taşıdığını öğrendim.
+- **SQLite ile PostgreSQL arasındaki büyük mimari ve Veri Tipi (Datatype) katılık farklarını** (Özellikle Boolean değerlerindeki 0/1 ve True/False çatışması) bizzat yaşayarak tecrübe ettim.
+- PowerShell'in yönlendirme (`>>`) komutlarında varsayılan olarak UTF-16 encoding kullandığını ve bunun `pip` gibi Linux tabanlı paket yöneticilerinde okuma hatalarına (Invalid Requirement) yol açabildiğini gördüm.
+- Veritabanı taşıma (Migration) geçmişinde, manuel olarak silinen tabloların yeni bir veritabanına geçerken nasıl "hayalet" drop (silme) hatalarına dönüştüğünü ve nasıl onarılacağını öğrendim.
+
+### Sonraki Oturum İçin Notlar
+Proje tamamen Dockerize edildi ve PostgreSQL'e taşındı. Seed data (Örnek ürünler) basıldı. Bir sonraki oturumda Profil sayfası iyileştirilmeleri ve kalan ufak pürüzlerin giderilmesi hedeflenecek.
+
 10 Adımlık Geliştirme Yol Haritamız:
 
 Garaj (Araç Ekleme) Özelliği: Kullanıcının kendi aracını (Marka, Model, Yıl) sisteme kaydetmesi için form ve rota yazacağız. (→ 1 Commit)
