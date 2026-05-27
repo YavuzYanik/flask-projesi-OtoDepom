@@ -4,30 +4,30 @@
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">
         <div class="card bg-surface text-theme shadow border-0 mt-4">
-            <div class="card bg-surface text-theme-body p-5">
-                <h3 class="card bg-surface text-theme-title text-center mb-4 fw-bold">Giriş Yap</h3>
+            <div class="card-body p-5">
+                <h3 class="text-center mb-4 fw-bold text-theme">Giriş Yap</h3>
                 <form action="" method="post" novalidate>
                     {{ form.hidden_tag() }}
                     
                     <div class="mb-3">
-                        {{ form.username_or_email.label(class="form-label fw-semibold") }}
-                        {{ form.username_or_email(class="form-control form-control-lg") }}
+                        {{ form.username_or_email.label(class="form-label fw-semibold text-theme") }}
+                        {{ form.username_or_email(class="form-control form-control-lg bg-theme text-theme border-theme") }}
                         {% for error in form.username_or_email.errors %}
                         <span class="text-danger small">{{ error }}</span>
                         {% endfor %}
                     </div>
                     
                     <div class="mb-4">
-                        {{ form.password.label(class="form-label fw-semibold") }}
-                        {{ form.password(class="form-control form-control-lg") }}
+                        {{ form.password.label(class="form-label fw-semibold text-theme") }}
+                        {{ form.password(class="form-control form-control-lg bg-theme text-theme border-theme") }}
                         {% for error in form.password.errors %}
                         <span class="text-danger small">{{ error }}</span>
                         {% endfor %}
                     </div>
                     
                     <div class="mb-4 form-check">
-                        {{ form.remember(class="form-check-input") }}
-                        {{ form.remember.label(class="form-check-label") }}
+                        {{ form.remember(class="form-check-input bg-theme border-theme") }}
+                        {{ form.remember.label(class="form-check-label text-theme") }}
                     </div>
                     
                     <div class="d-grid gap-2">
@@ -35,8 +35,8 @@
                     </div>
                 </form>
             </div>
-            <div class="card bg-surface text-theme-footer bg-surface text-center py-3 border-0">
-                <div class="text-muted">Hesabınız yok mu? <a href="{{ url_for('auth.register') }}" class="text-decoration-none fw-bold">Kayıt Olun</a></div>
+            <div class="card-footer bg-surface text-center py-3 border-0 border-top border-theme">
+                <div class="text-theme-muted">Hesabınız yok mu? <a href="{{ url_for('auth.register') }}" class="text-decoration-none fw-bold" style="color: var(--accent-color);">Kayıt Olun</a></div>
             </div>
         </div>
     </div>

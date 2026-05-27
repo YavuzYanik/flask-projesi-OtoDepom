@@ -4,38 +4,38 @@
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">
         <div class="card bg-surface text-theme shadow border-0 mt-4 mb-5">
-            <div class="card bg-surface text-theme-body p-5">
-                <h3 class="card bg-surface text-theme-title text-center mb-4 fw-bold">Yeni Hesap Oluştur</h3>
+            <div class="card-body p-5">
+                <h3 class="text-center mb-4 fw-bold text-theme">Yeni Hesap Oluştur</h3>
                 <form action="" method="post" novalidate>
                     {{ form.hidden_tag() }}
                     
                     <div class="mb-3">
-                        {{ form.username.label(class="form-label fw-semibold") }}
-                        {{ form.username(class="form-control form-control-lg") }}
+                        {{ form.username.label(class="form-label fw-semibold text-theme") }}
+                        {{ form.username(class="form-control form-control-lg bg-theme text-theme border-theme") }}
                         {% for error in form.username.errors %}
                         <span class="text-danger small">{{ error }}</span>
                         {% endfor %}
                     </div>
 
                     <div class="mb-3">
-                        {{ form.email.label(class="form-label fw-semibold") }}
-                        {{ form.email(class="form-control form-control-lg") }}
+                        {{ form.email.label(class="form-label fw-semibold text-theme") }}
+                        {{ form.email(class="form-control form-control-lg bg-theme text-theme border-theme") }}
                         {% for error in form.email.errors %}
                         <span class="text-danger small">{{ error }}</span>
                         {% endfor %}
                     </div>
                     
                     <div class="mb-3">
-                        {{ form.password.label(class="form-label fw-semibold") }}
-                        {{ form.password(class="form-control form-control-lg") }}
+                        {{ form.password.label(class="form-label fw-semibold text-theme") }}
+                        {{ form.password(class="form-control form-control-lg bg-theme text-theme border-theme") }}
                         {% for error in form.password.errors %}
                         <span class="text-danger small">{{ error }}</span>
                         {% endfor %}
                     </div>
 
                     <div class="mb-4">
-                        {{ form.password_confirm.label(class="form-label fw-semibold") }}
-                        {{ form.password_confirm(class="form-control form-control-lg") }}
+                        {{ form.password_confirm.label(class="form-label fw-semibold text-theme") }}
+                        {{ form.password_confirm(class="form-control form-control-lg bg-theme text-theme border-theme") }}
                         {% for error in form.password_confirm.errors %}
                         <span class="text-danger small">{{ error }}</span>
                         {% endfor %}
@@ -46,8 +46,8 @@
                     </div>
                 </form>
             </div>
-            <div class="card bg-surface text-theme-footer bg-surface text-center py-3 border-0">
-                <div class="text-muted">Zaten hesabınız var mı? <a href="{{ url_for('auth.login') }}" class="text-decoration-none fw-bold">Giriş Yapın</a></div>
+            <div class="card-footer bg-surface text-center py-3 border-0 border-top border-theme">
+                <div class="text-theme-muted">Zaten hesabınız var mı? <a href="{{ url_for('auth.login') }}" class="text-decoration-none fw-bold" style="color: var(--accent-color);">Giriş Yapın</a></div>
             </div>
         </div>
     </div>

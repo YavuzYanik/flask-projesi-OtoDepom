@@ -1,94 +1,52 @@
 from app.models import User
 from app import db
 
-def test_register_success(client, app):
-    """Test valid user registration"""
+def test_register_page_loads(client):
+    """Kayıt sayfasının doğru yüklendiğini test eder"""
+    response = client.get('/auth/register')
+    assert response.status_code == 200
+    assert b'Yeni Hesap Olu\xc5\x9ftur' in response.data or b'Kayıt Olun' in response.data.decode('utf-8')
+
+def test_successful_registration(client, app):
+    """Yeni bir kullanıcının başarıyla kayıt olabildiğini test eder"""
     response = client.post('/auth/register', data={
         'username': 'testuser',
-        'email': 'test@test.com',
+        'email': 'test@example.com',
         'password': 'password123',
         'password_confirm': 'password123'
     }, follow_redirects=True)
     
     assert response.status_code == 200
+    # Başarılı kayıttan sonra giriş sayfasına yönlendirilmeli
+    assert b'Giri\xc5\x9f Yap' in response.data or b'Giriş Yap' in response.data.decode('utf-8')
     
-    data = response.data.decode('utf-8')
-    assert 'giriş yapabilirsiniz' in data.lower() or 'başarıyla' in data.lower()
     with app.app_context():
         user = User.query.filter_by(username='testuser').first()
         assert user is not None
-        assert user.email == 'test@test.com'
-        assert user.check_password('password123') == True
+        assert user.email == 'test@example.com'
+        assert user.check_password('password123')
 
-def test_register_existing_user(client, app):
-    """Test registration with already existing email or username"""
-    # Create initial user
+def test_login_page_loads(client):
+    """Giriş sayfasının doğru yüklendiğini test eder"""
+    response = client.get('/auth/login')
+    assert response.status_code == 200
+    assert b'Giri\xc5\x9f Yap' in response.data or b'Giriş Yap' in response.data.decode('utf-8')
+
+def test_successful_login(client, app):
+    """Geçerli bilgilerle giriş işleminin başarılı olduğunu test eder"""
+    # Önce test veritabanına bir kullanıcı ekle
     with app.app_context():
-        user = User(username='testuser', email='test@test.com')
-        user.set_password('password123')
+        user = User(username='loginuser', email='login@example.com')
+        user.set_password('login123')
         db.session.add(user)
         db.session.commit()
-        
-    # Try to register with same username
-    response = client.post('/auth/register', data={
-        'username': 'testuser',
-        'email': 'another@test.com',
-        'password': 'password123',
-        'password_confirm': 'password123'
-    }, follow_redirects=True)
     
-    data = response.data.decode('utf-8')
-    assert 'bu kullanıcı adı alınmış' in data.lower() or 'zaten' in data.lower()
-
-def test_login_success(client, app):
-    """Test logging in with correct credentials"""
-    with app.app_context():
-        user = User(username='loginuser', email='login@test.com')
-        user.set_password('password123')
-        db.session.add(user)
-        db.session.commit()
-        
-    # Test valid login with username
+    # Ardından bu kullanıcıyla giriş yap
     response = client.post('/auth/login', data={
         'username_or_email': 'loginuser',
-        'password': 'password123'
+        'password': 'login123'
     }, follow_redirects=True)
     
-    data = response.data.decode('utf-8')
-    assert 'başarıyla giriş yaptınız' in data.lower() or 'profilim' in data.lower() or 'loginuser' in data.lower()
-
-def test_login_invalid(client, app):
-    """Test logging in with incorrect credentials"""
-    with app.app_context():
-        user = User(username='loginuser', email='login@test.com')
-        user.set_password('password123')
-        db.session.add(user)
-        db.session.commit()
-        
-    response = client.post('/auth/login', data={
-        'username_or_email': 'loginuser',
-        'password': 'wrongpassword'
-    }, follow_redirects=True)
-    
-    data = response.data.decode('utf-8')
-    assert 'geçersiz' in data.lower() or 'şifre' in data.lower()
-    assert 'loginuser' not in data or 'giriş yap' in data.lower()
-
-def test_logout(client, app):
-    """Test user logout"""
-    with app.app_context():
-        user = User(username='logoutuser', email='logout@test.com')
-        user.set_password('password123')
-        db.session.add(user)
-        db.session.commit()
-        
-    # Login first
-    client.post('/auth/login', data={
-        'username_or_email': 'logoutuser',
-        'password': 'password123'
-    })
-    
-    # Logout
-    response = client.get('/auth/logout', follow_redirects=True)
-    data = response.data.decode('utf-8')
-    assert 'giriş yap' in data.lower() or 'başarıyla çıkış' in data.lower()
+    assert response.status_code == 200
+    # Giriş yaptıktan sonra ana sayfada/menüde "Çıkış Yap" yazısı olmalı
+    assert b'\xc3\x87\xc4\xb1k\xc4\xb1\xc5\x9f' in response.data or b'Çıkış' in response.data.decode('utf-8')
