@@ -402,3 +402,29 @@ Sipariş Geçmişim: Kullanıcının kendi satın aldığı ürünleri listeledi
 Birim Testleri (Unit Tests): Yönergedeki "Test yazmadan ilerler" uyarısından puan kırmamaları için pytest ile giriş ve kayıt olma işlemlerine temel test yazacağız. (→ 1 Commit)
 UI / Tasarım İyileştirmeleri: Bootstrap 5 ile sitemize biraz daha renk, logo ve modern bir hava katacağız. (→ 1 Commit)
 Final: Raporun Doldurulması: Şu an baktığınız docs/rapor.md dosyasını ve AI günlüğünüzü birlikte tamamlayıp son haliyle GitHub'a yollayacağız. (→ 1 Commit)
+
+---
+
+## EKLER: Vibe Coding Kanıtları ve Ekran Görüntüleri
+
+Proje boyunca AI ile olan etkileşimlerimizin, verdiğimiz yönlendirmelerin ve yakaladığımız hataların görsel kanıtları aşağıda sunulmuştur (Değerlendirme Rubriği "AI Günlüğü" kriterleri gereği eklenmiştir):
+
+### 1. Detaylı Prompt (Sorgulama) Örneği
+Kullanıcının projeyi şekillendiren detaylı promptu. Emojilerin kullanılmaması, tasarımın "Sahibinden" stili olması ve çok adımlı bir form istenmesi gibi spesifik komutları içerir:
+![Örnek Prompt](%C3%B6rnek%20promt.png)
+
+### 2. Ajanın Koda Döktüğü Çıktı ve Hata Yakalama
+Verilen prompt sonrası ajanın aldığı aksiyonlar. Ajanın 500 hatasını fark edip kullanıcıyı veritabanı şemasını güncellemesi gerektiği konusunda uyarması:
+![Prompt Çıktısı](prompt%20%C3%A7%C4%B1kt%C4%B1s%C4%B1.png)
+
+### 3. Karşılaşılan ve Düzeltilen "Gizli Hata" Örneği (Global Error Handler)
+Proje geliştirilirken "/garage" rotasında bir sorun yaşandığında Flask'ın varsayılan (çirkin) hata sayfasının görünmesi. Bu durum, 500/404 hata sayfaları tasarlanmasına rağmen app/__init__.py içerisine Global Error Handler eklenmesinin unutulduğunu gösteren mükemmel bir hata ayıklama kanıtıdır.
+![Flask Varsayılan Hata Mesajı](HATA%20MESAJI.png)
+
+### 4. Yapay Zekayı Yönlendirme: Hata Sayfalarının Test Edilmesi
+Kullanıcının "1. 505 yazısını nasıl göreceğim" diyerek sistemi test etmeye zorlaması ve ajanın bu test için geçici bir test rotası eklemesi:
+![Hata Sayfası Yönlendirmesi](505i%20ayr%C4%B1%20sayfada%20g%C3%B6stermi%C5%9F.png)
+
+### 5. Git & Versiyon Kontrol Konusunda Eğitim Anı
+Boş bırakılan static ve templates klasörlerinin Git tarafından takip edilmemesi sorununun .keep dosyası eklenerek çözüldüğünün ajana teyit ettirilmesi:
+![Git Klasör Takibi Hatası](Yapay%20Zeka%20hatas%C4%B1%20.png)
