@@ -50,3 +50,13 @@ Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları sıras
   ```bash
   pytest
   ```
+## Canlıya Alma (Deployment - Render / Heroku)
+Bu proje bulut tabanlı sistemlere (PaaS) tek tıkla dağıtılmaya hazırdır. Dağıtım için Procfile ve 
+untime.txt dosyaları otomatik olarak tanımlanmıştır.
+
+**Render.com İçin Dağıtım Adımları:**
+1. Render.com üzerinde **'New Web Service'** oluşturun ve GitHub deponuzu bağlayın.
+2. Build Command: pip install -r requirements.txt
+3. Start Command: gunicorn run:app (Procfile kullanılıyorsa otomatik algılanır).
+4. Environment sekmesinde PostgreSQL eklentisini kurun. Render size otomatik olarak bir DATABASE_URL tanımlayacaktır.
+5. Deploy butonuna basın! Config dosyamız Render'ın verdiği postgres:// URL'sini otomatik olarak yeni nesil postgresql:// yapısına dönüştürecektir.
