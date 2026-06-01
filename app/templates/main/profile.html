@@ -23,8 +23,18 @@
         justify-content: center;
         font-size: 3rem;
         color: white;
-        margin: 0 auto 1.5rem;
+        margin: 0 auto 1rem;
         box-shadow: 0 5px 15px rgba(123, 61, 235, 0.4);
+        overflow: hidden;
+        position: relative;
+    }
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .avatar-upload-form {
+        margin-bottom: 1.5rem;
     }
     .profile-nav {
         margin-top: 2rem;
@@ -81,8 +91,19 @@
         <div class="col-md-4 col-lg-3">
             <div class="profile-sidebar">
                 <div class="profile-avatar">
-                    {{ current_user.username[0]|upper }}
+                    {% if current_user.avatar_file %}
+                        <img src="{{ url_for('static', filename='avatars/' ~ current_user.avatar_file) }}" alt="Avatar">
+                    {% else %}
+                        {{ current_user.username[0]|upper }}
+                    {% endif %}
                 </div>
+                
+                <form action="{{ url_for('main.upload_avatar') }}" method="POST" enctype="multipart/form-data" class="avatar-upload-form text-center">
+                    <input type="file" name="avatar" id="avatar" class="d-none" accept="image/*" onchange="this.form.submit()">
+                    <label for="avatar" class="badge bg-secondary cursor-pointer" style="cursor: pointer;">
+                        <i class="fa-solid fa-camera"></i> Fotoğraf Değiştir
+                    </label>
+                </form>
                 <h4 class="text-theme mb-1">{{ current_user.username }}</h4>
                 <p style="color: #a0a5b1; font-size: 0.9rem;">{{ current_user.email }}</p>
                 

@@ -626,3 +626,26 @@ def page_not_found(e):
 @main.app_errorhandler(500)
 def internal_server_error(e):
     return render_template('errors/500.html', title='Sunucu Hatası'), 500
+
+@main.route('/upload_avatar', methods=['POST'])
+@login_required
+def upload_avatar():
+    if 'avatar' not in request.files:
+        flash('Dosya seçilmedi!', 'danger')
+        return redirect(url_for('main.profile'))
+    
+    file = request.files['avatar']
+    if file.filename == '':
+        flash('Dosya seçilmedi!', 'danger')
+        return redirect(url_for('main.profile'))
+        
+    if file:
+        filename = secure_filename(f'avatar_{current_user.id}_{file.filename}')
+        filepath = os.path.join(current_app.root_path, 'static/avatars', filename)
+        file.save(filepath)
+        
+        current_user.avatar_file = filename
+        db.session.commit()
+        flash('Profil fotoğrafınız güncellendi!', 'success')
+        
+    return redirect(url_for('main.profile'))
