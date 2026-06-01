@@ -642,6 +642,7 @@ def upload_avatar():
     if file:
         filename = secure_filename(f'avatar_{current_user.id}_{file.filename}')
         filepath = os.path.join(current_app.root_path, 'static/avatars', filename)
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
         file.save(filepath)
         
         current_user.avatar_file = filename
