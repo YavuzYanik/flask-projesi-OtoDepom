@@ -1,4 +1,6 @@
 # OtoDepom - Proje Raporu
+## Youtube Videosu Link https://youtu.be/iE0GLPCBNcI
+
 
 ## 1. Projenin Amacı ve Ne İşe Yaradığı
 OtoDepom, araç sahiplerinin kendi marka ve modellerine uygun doğru yedek parçaları (motor yağı, akü, lastik vb.) kolayca bulup sipariş verebilecekleri "Next-Generation" premium bir e-ticaret platformudur. Kullanıcılar sisteme kendi araçlarını ekleyerek "Sanal Garaj"larını oluşturabilir, araçlarının muayene ve bakım tarihlerini takip edebilirler. Sistem, dinamik filtreleme ve uyumluluk algoritmasıyla kullanıcının sadece kendi aracına uygun ürünleri görmesini sağlayarak yanlış parça satın alma riskini ortadan kaldırır.
@@ -18,7 +20,7 @@ graph TD
 ```
 
 ## 3. Vibe Coding Deneyimim
-Yapay zeka ile "Vibe Coding" yapmak, özellikle frontend tasarımı ve veritabanı ilişkileri (ORM) gibi karmaşık süreçleri inanılmaz derecede hızlandırdı. Ajanın oluşturduğu planı (Plan Modu) adım adım takip etmek, "tek prompt'ta koca projeyi istemek" gibi hatalara düşmemi engelledi. Ancak bazen yapay zeka CSS dosyalarını eski haline döndürmeye çalıştı veya eski migration dosyalarındaki sütunları Postgres'te hata verecek şekilde yorumladı; bu anlarda kontrolü ele alıp ajana müdahale etmem gerekti.
+Yapay zeka ile "Vibe Coding" yapmak, özellikle Tasarımda  ve veritabanı gibi karmaşık süreçleri çok fazla hızlandırdı. Ajanın oluşturduğu planı (Plan Modu) adım adım takip etmek, "tek prompt'ta koca projeyi istemek" gibi hatalara düşmemi engelledi. Ancak bazen yapay zeka CSS dosyalarını eski haline döndürmeye çalıştı veya eski migration dosyalarındaki sütunları Postgres'te hata verecek şekilde yorumladı; bu anlarda kontrolü ele alıp ajana müdahale etmem gerekti.
 
 ## 4. Antigravity'de En Faydalı Bulduğum 2 Özellik
 1. **Tool Kullanımı (Terminal & File System):** Ajanın doğrudan bash komutlarını (`docker-compose`, `pip install`, `flask db migrate`) benim yerime çalıştırabilmesi, kurulum ve hata ayıklama süreçlerini %90 oranında kısalttı.
@@ -33,4 +35,4 @@ Yapay zeka ile "Vibe Coding" yapmak, özellikle frontend tasarımı ve veritaban
 Bu büyüklükteki tam teşekküllü (sepet, sipariş, garaj uyumluluğu, dinamik filtre, dark mode) bir e-ticaret platformunu sıfırdan, tek satır AI kullanmadan yazsaydım muhtemelen **3-4 hafta** sürerdi. AI ile tüm bu mimari tasarım, kodlama, testler ve Dockerizasyon aşaması parçalı oturumlar halinde toplamda birkaç günümü aldı. Geliştirme süresinde **~%80 oranında bir hız avantajı** sağladı.
 
 ## 7. Gelecek Adımlar
-Bu projeyi canlıya (sunucuya) tam yetkili bir şekilde alırsam, ilk ekleyeceğim özellik Iyzico veya Stripe üzerinden **Sanal POS (Gerçek Ödeme)** entegrasyonu olurdu. Ayrıca araç bakım bildirimleri için sisteme Celery/Redis ekleyerek kullanıcılara bakım tarihi yaklaştığında **E-Posta (SMTP) gönderimi** yapılmasını sağlardım.
+Sunucuya tam yetkili bir şekilde alırsam, ilk ekleyeceğim özellik Iyzico veya Stripe üzerinden GERÇEK ÖDEME SİSTEMİ entegrasyonu olurdu. Araç bakım bildirimleri için sisteme kleyerek kullanıcılara bakım tarihi yaklaştığında **E-Posta (SMTP) gönderimi** yapılmasını sağlardım.
